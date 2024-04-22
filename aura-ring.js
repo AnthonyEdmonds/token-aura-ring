@@ -1,7 +1,6 @@
-Hooks.on('renderTokenConfig', RingAura.showConfig);
+import { Aura } from './Aura.js';
+import { Config } from './Config.js';
 
-const RingAura = {
-    showConfig: function (a, b, c) {
-        console.log(a, b, c);
-    },
-};
+export const AuraRingConfig = new Config();
+Hooks.on('renderTokenConfig', AuraRingConfig.show.bind(AuraRingConfig));
+Hooks.on('initializeVisionSources', Aura.setup);
