@@ -155,18 +155,25 @@ export class Aura
         let auraX = this.simpleToken.w / 2;
         let auraY = this.simpleToken.h / 2;
         let auraRadius = (flags.radius * (canvas.size / canvas.distance)) + auraX;
+        let auraOpacity = flags.opacity;
 
+        if (this.simpleToken.document.hidden === true) {
+            if (auraOpacity > 0.25) {
+                auraOpacity = 0.25;
+            }
+        }
+        
         this.pixiGraphics
-            .lineStyle(flags.weight, flags.colour, flags.opacity, 0)
+            .lineStyle(flags.weight, flags.colour, auraOpacity, 0)
             .drawCircle(auraX, auraY, auraRadius);
     }
 
     shouldDraw(flags)
     {
-        // TODO GM Permissions
-
         if (this.simpleToken.document.hidden === true) {
-            return false;
+            if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
+                return false;
+            }
         }
 
         if (flags.radius < 1) {

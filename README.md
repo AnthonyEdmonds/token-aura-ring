@@ -2,6 +2,8 @@
 
 A simple module for Foundry VTT which adds an outlined ring aura to a token.
 
+![Game master view](gm.jpg)
+
 Inspired by the [Token Auras](https://foundryvtt.com/packages/token-auras) add-on.
 
 ## About
@@ -12,7 +14,9 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 This means that the range of the aura ring is calculated from the edge of the token, instead of the centre.
 
-Visibility of the aura ring is obscured by fog-of-war, and it is hidden entirely when the viewing player is unable to see the token which is emitting the aura ring.
+![Player view](player.jpg)
+
+Visibility of the aura ring is obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura ring is being emitted.
 
 Hidden tokens will only show their aura ring to the game master.
 
