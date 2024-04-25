@@ -32,6 +32,7 @@ export class Config
             this.colour(aura),
             this.opacity(aura),
             this.weight(aura),
+            this.visibility(aura),
         );
 
         return options;
@@ -80,6 +81,14 @@ export class Config
         link.append(icon, text);
 
         return link;
+    }
+
+    visibility(aura)
+    {
+        return this.form.group(
+            'Visibility',
+            this.form.select(aura, 'visibility', Object.values(CONST.USER_ROLE_NAMES)),
+        );
     }
 
     weight(aura)
