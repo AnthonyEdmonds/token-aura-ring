@@ -35,6 +35,7 @@ export class Aura
             colour: '#000000',
             opacity: 0.5,
             radius: 0,
+            visibility: 'PLAYER',
             weight: 4,
         }
     }
@@ -170,13 +171,17 @@ export class Aura
 
     shouldDraw(flags)
     {
+        if (flags.radius < 1) {
+            return false;
+        }
+        
         if (this.simpleToken.document.hidden === true) {
             if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
                 return false;
             }
         }
 
-        if (flags.radius < 1) {
+        if (game.user.hasRole(flags.visibility) !== true) {
             return false;
         }
         

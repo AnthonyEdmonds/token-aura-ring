@@ -32,9 +32,11 @@ https://raw.githubusercontent.com/AnthonyEdmonds/token-aura-ring/main/module.jso
 
 Once enabled, you can add and configure aura rings from the "Aura Ring" tab on any Token's settings page.
 
-From there you can set the radius, colour, opacity, and weight of the aura ring.
+![Token configuration](config.jpg)
 
-To remove an aura ring, set the radius to zero.
+From there you can set the radius, colour, opacity, weight, and visibility of the aura ring.
+
+To remove an aura ring set the radius to zero, or the visibility to "NONE".
 
 ## Issues
 
