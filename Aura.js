@@ -171,6 +171,10 @@ export class Aura
 
     shouldDraw(flags)
     {
+        if (flags.visibility === 'NONE') {
+            return false;
+        }
+
         if (flags.radius < 1) {
             return false;
         }
