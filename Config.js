@@ -11,6 +11,10 @@ export class Config
 
     static processChanges(simpleTokenDocument, changes)
     {
+        if (simpleTokenDocument.isOwner !== true) {
+            return;
+        }
+
         for (const key in changes) {
             const change = changes[key];
 
@@ -34,7 +38,7 @@ export class Config
         }
     }
 
-    addAura(button, simpleTokenDocument)
+    addAura(button)
     {
         const configWindow = document.getElementById(Config.windowId);
         
@@ -117,7 +121,7 @@ export class Config
         }
 
         const button = this.form.button(' Add a new aura', 'fa-plus');
-        button.addEventListener('mouseup', this.addAura.bind(this, button, simpleTokenDocument));
+        button.addEventListener('mouseup', this.addAura.bind(this, button));
         button.style.marginBottom = '0.5rem';
 
         configWindow.append(...sections, button);

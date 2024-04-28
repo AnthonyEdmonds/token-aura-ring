@@ -11,11 +11,6 @@ export class Aura
 
     static key = 'auraRing';
 
-    static add(simpleToken)
-    {
-        simpleToken[Aura.key] = new Aura(simpleToken);
-    }
-
     static draw(simpleToken)
     {
         if (Aura.hasFlags(simpleToken.document) !== true) {
@@ -23,11 +18,13 @@ export class Aura
         }
 
         if (Aura.hasAura(simpleToken) !== true) {
-            Aura.add(simpleToken);
+            simpleToken[Aura.key] = new Aura(simpleToken);
         }
 
-        if (simpleToken.auraRing.shouldDraw() === true) {
-            simpleToken.auraRing.renderAll();
+        simpleToken[Aura.key].clear();
+
+        if (simpleToken[Aura.key].shouldDraw() === true) {
+            simpleToken[Aura.key].renderAll();
         }
     }
 
@@ -76,7 +73,18 @@ export class Aura
         }
     }
 
-    static refresh(simpleToken)
+    static refreshSight(event)
+    {
+        for (const simpleTokenDocument of game.scenes.current.tokens.contents) {
+            if (Aura.hasAura(simpleTokenDocument.object) !== true) {
+                return;
+            }
+
+            simpleTokenDocument.object[Aura.key].pixiGraphics.alpha = simpleTokenDocument.object.isVisible === true ? 1 : 0;
+        }
+    }
+
+    static refreshToken(simpleToken)
     {
         if (simpleToken.hasOwnProperty(Aura.key) !== true) {
             return;
@@ -104,7 +112,8 @@ export class Aura
         
         Hooks.on('destroyToken', Aura.remove);
         Hooks.on('drawToken', Aura.draw);
-        Hooks.on('refreshToken', Aura.refresh);
+        Hooks.on('refreshToken', Aura.refreshToken);
+        Hooks.on('sightRefresh', Aura.refreshSight)
         Hooks.on('updateToken', Aura.update);
 
         for (const token of game.scenes.current.tokens.contents) {
@@ -137,6 +146,11 @@ export class Aura
         this.pixiContainer.addChild(this.pixiGraphics);
 
         this.simpleToken = simpleToken;
+    }
+
+    clear()
+    {
+        this.pixiGraphics.clear();
     }
 
     destroy()
@@ -176,7 +190,6 @@ export class Aura
         const auras = this.getAuras();
         const canvas = game.canvas.dimensions;
 
-        this.pixiGraphics.clear();
         this.move();
 
         for (const name in auras) {
@@ -214,7 +227,7 @@ export class Aura
             }
         }
 
-        return this.simpleToken.isVisible === true;
+        return true;
     }
 
     shouldRender(flags)
@@ -227,6 +240,10 @@ export class Aura
             return false;
         }
 
-        return game.user.hasRole(flags.visibility) === true;
+        if (game.user.hasRole(flags.visibility) !== true) {
+            return false;
+        }
+
+        return true;
     }
 }
