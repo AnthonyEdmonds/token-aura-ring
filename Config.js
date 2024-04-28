@@ -68,6 +68,15 @@ export class Config
         this.resizeConfigForm(button);
     }
 
+    angle(key, aura)
+    {
+        return this.form.group(
+            'Angle (degrees)',
+            this.form.range(key, aura, 'angle', 360, 0, 5),
+            'How much of the circle to draw.',
+        );
+    }
+
     colour(key, aura)
     {
         return this.form.group(
@@ -88,6 +97,8 @@ export class Config
             this.opacity(key, aura),
             this.weight(key, aura),
             this.visibility(key, aura),
+            this.direction(key, aura),
+            this.angle(key, aura),
             this.form.break(),
         );
 
@@ -129,6 +140,15 @@ export class Config
         return configWindow;
     }
 
+    direction(key, aura)
+    {
+        return this.form.group(
+            'Direction (degrees)',
+            this.form.range(key, aura, 'direction', 180, -180, 5),
+            'From the top of a token, where 0 is "forward". The aura will rotate with the token.',
+        );
+    }
+
     markDelete(input)
     {
         input.value = "yes";
@@ -153,8 +173,9 @@ export class Config
         button.addEventListener('mouseup', this.markDelete.bind(this, hidden));
 
         return this.form.group(
-            'Name (must be unique)',
+            'Name',
             this.form.fields(input, button, hidden),
+            'Must be unique',
         );
     }
 
