@@ -2,7 +2,7 @@
 
 A simple module for Foundry VTT which adds outlined aura rings to a token.
 
-![Game master view](gm.jpg)
+![How token aura rings appear to the game master](gm.jpg)
 
 Inspired by the [Token Auras](https://foundryvtt.com/packages/token-auras) add-on.
 
@@ -14,7 +14,7 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 This means that the range of the aura ring is calculated from the edge of the token, instead of the centre.
 
-![Player view](player.jpg)
+![How token aura rings appear to players](player.jpg)
 
 Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
@@ -32,13 +32,33 @@ https://raw.githubusercontent.com/AnthonyEdmonds/token-aura-ring/main/module.jso
 
 Once enabled, you can add and configure aura rings from the "Aura Ring" tab on any token settings page.
 
-![Token configuration](config.jpg)
+![An example of a token aura ring configuration](config.jpg)
 
 From there you can set the radius, colour, opacity, weight, and visibility of the aura ring.
+
+### Multiple aura rings
 
 You can add as many auras to a single token as you like by pressing the "Add a new aura" button at the bottom of the settings tab.
 
 To remove an aura ring, set the radius to zero, the visibility to "NONE", or press the "Delete" button.
+
+### Angled aura rings
+
+You can adjust the "Direction" and "Angle" settings to create arcs instead of circles.
+
+![An example of a token with arcs instead of circles](arc.jpg)
+
+The "Direction" setting rotates the arc around the token.
+
+The "Angle" setting determines how much of the arc to draw.
+
+Arcs are drawn relative to the top of the token, where a direction of "0" is considered facing forward.
+
+The arc is centralised around its direction, where an angle of "90" would have 45 degrees on either side.
+
+When you rotate the token the arc will rotate with it.
+
+Setting the "Angle" to "360" will draw a complete circle.
 
 ## Issues
 

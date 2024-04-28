@@ -48,12 +48,26 @@ export class Form
         return fields;
     }
 
-    group(label, input)
+    group(label, input, hint = null)
     {
         const formGroup = document.createElement('div');
         formGroup.classList.add('form-group');
         formGroup.append(this.label(label), input);
+
+        if (hint !== null) {
+            formGroup.append(this.hint(hint));
+        }
+
         return formGroup;
+    }
+
+    hint(text)
+    {
+        const hint = document.createElement('p');
+        hint.classList.add('hint');
+        hint.innerText = text;
+
+        return hint;
     }
 
     icon(name)

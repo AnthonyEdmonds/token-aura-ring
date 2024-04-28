@@ -31,8 +31,10 @@ export class Aura
     static defaultSettings(name)
     {
         return {
+            angle: 360,
             colour: '#000000',
             delete: 'no',
+            direction: 0,
             name: name,
             opacity: 0.5,
             radius: 0,
@@ -214,9 +216,20 @@ export class Aura
             }
         }
         
-        this.pixiGraphics
-            .lineStyle(aura.weight, aura.colour, auraOpacity, 0)
-            .drawCircle(auraX, auraY, auraRadius);
+        this.pixiGraphics.lineStyle(aura.weight, aura.colour, auraOpacity, 0)
+
+        if (aura.angle === 360) {
+            this.pixiGraphics.drawCircle(auraX, auraY, auraRadius);
+        } else {
+            const radiansPerDegree = Math.PI / 180;
+            const direction = (-90 + aura.direction + this.simpleToken.document.rotation) - (aura.angle / 2);
+            const startAngle = direction * radiansPerDegree;
+            const endAngle = startAngle + (aura.angle * radiansPerDegree);
+
+            this.pixiGraphics.startPoly();
+            this.pixiGraphics.arc(auraX, auraY, auraRadius, startAngle, endAngle);
+            this.pixiGraphics.finishPoly();
+        }
     }
 
     shouldDraw()
