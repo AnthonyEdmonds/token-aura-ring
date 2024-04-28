@@ -1,6 +1,6 @@
 # Token Aura Ring
 
-A simple module for Foundry VTT which adds an outlined ring aura to a token.
+A simple module for Foundry VTT which adds outlined aura rings to a token.
 
 ![Game master view](gm.jpg)
 
@@ -8,7 +8,7 @@ Inspired by the [Token Auras](https://foundryvtt.com/packages/token-auras) add-o
 
 ## About
 
-This Foundry VTT module allows you to add and customise an outlined aura ring around a token, ideal for cleanly representing the range of an aura type effect without obscuring the map.
+This Foundry VTT module allows you to add and customise outlined aura rings around a token, ideal for cleanly representing the range of aura type effects without obscuring the map.
 
 Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition rules](https://2e.aonprd.com/Rules.aspx?ID=2387).
 
@@ -16,9 +16,9 @@ This means that the range of the aura ring is calculated from the edge of the to
 
 ![Player view](player.jpg)
 
-Visibility of the aura ring is obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura ring is being emitted.
+Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
-Hidden tokens will only show their aura ring to the game master.
+Hidden tokens will only show their aura rings to the game master.
 
 ## Installation
 
@@ -30,13 +30,15 @@ https://raw.githubusercontent.com/AnthonyEdmonds/token-aura-ring/main/module.jso
 
 ## Usage
 
-Once enabled, you can add and configure aura rings from the "Aura Ring" tab on any Token's settings page.
+Once enabled, you can add and configure aura rings from the "Aura Ring" tab on any token settings page.
 
 ![Token configuration](config.jpg)
 
 From there you can set the radius, colour, opacity, weight, and visibility of the aura ring.
 
-To remove an aura ring set the radius to zero, or the visibility to "NONE".
+You can add as many auras to a single token as you like by pressing the "Add a new aura" button at the bottom of the settings tab.
+
+To remove an aura ring, set the radius to zero, the visibility to "NONE", or press the "Delete" button.
 
 ## Issues
 

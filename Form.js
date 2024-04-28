@@ -2,14 +2,32 @@ import { Aura } from "./Aura.js";
 
 export class Form
 {
-    colour(aura, key)
+    break()
     {
-        let readout = this.input(aura, key, 'text');
+        return document.createElement('hr');
+    }
+
+    button(label, icon)
+    {
+        const buttonIcon = this.icon(icon);
+        const text = document.createTextNode(label);
+
+        const button = document.createElement('button');
+        button.append(buttonIcon, text);
+        button.style.whiteSpace = 'nowrap';
+        button.type = 'button';
+
+        return button;
+    }
+
+    colour(name, aura, key)
+    {
+        const readout = this.input(name, aura, key, 'text');
         readout.classList.add('color');
 
-        let picker = this.input(aura, key, 'color');
+        const picker = this.input(name, aura, key, 'color');
         picker.removeAttribute('name');
-        picker.setAttribute('data-edit', this.name('colour'));
+        picker.setAttribute('data-edit', this.name(name, 'colour'));
 
         readout.addEventListener('change', this.copyValue.bind(this, readout, picker));
         picker.addEventListener('change', this.copyValue.bind(this, picker, readout));
@@ -24,7 +42,7 @@ export class Form
 
     fields(...inputs)
     {
-        let fields = document.createElement('div');
+        const fields = document.createElement('div');
         fields.classList.add('form-fields');
         fields.append(...inputs);
         return fields;
@@ -32,36 +50,52 @@ export class Form
 
     group(label, input)
     {
-        let formGroup = document.createElement('div');
+        const formGroup = document.createElement('div');
         formGroup.classList.add('form-group');
         formGroup.append(this.label(label), input);
         return formGroup;
     }
 
-    input(aura, key, type)
+    icon(name)
     {
-        let input = document.createElement('input');
-        input.name = this.name(key);
+        const icon = document.createElement('i');
+        icon.classList.add('fas', name);
+
+        return icon;
+    }
+
+    id(name)
+    {
+        return `aura-${name}`;
+    }
+
+    input(name, aura, key, type)
+    {
+        const input = document.createElement('input');
+        input.name = this.name(name, key);
         input.type = type;
-        input.value = aura[key];
+        input.value = aura.hasOwnProperty(key) === true
+            ? aura[key]
+            : '';
+        
         return input;
     }
 
     label(text)
     {
-        let label = document.createElement('label');
+        const label = document.createElement('label');
         label.innerText = text;
         return label;
     }
 
-    name(key)
+    name(name, key)
     {
-        return `flags.${Aura.flagsNamespace}.${Aura.flagsKey}.${key}`;
+        return `flags.${Aura.namespace}.${name}.${key}`;
     }
 
-    number(aura, key, max = null, min = 0, step = 'any')
+    number(name, aura, key, max = null, min = 0, step = 'any')
     {
-        let input = this.input(aura, key, 'number');
+        const input = this.input(name, aura, key, 'number');
         input.max = max;
         input.min = min;
         input.step = step;
@@ -69,29 +103,29 @@ export class Form
         return this.fields(input);
     }
 
-    range(aura, key, max = 1, min = 0, step = 0.05)
+    range(name, aura, key, max = 1, min = 0, step = 0.05)
     {
-        let input = this.input(aura, key, 'range');
+        const input = this.input(name, aura, key, 'range');
         input.max = max;
         input.min = min;
         input.step = step;
         input.value = aura[key];
 
-        let readout = document.createElement('span');
+        const readout = document.createElement('span');
         readout.classList.add('range-value');
         readout.innerHTML = aura[key];
 
         return this.fields(input, readout);
     }
 
-    select(aura, key, choices)
+    select(name, aura, key, choices)
     {
-        let select = document.createElement('select');
-        select.name = this.name(key);
+        const select = document.createElement('select');
+        select.name = this.name(name, key);
 
         let options = [];
-        for (let choice of choices) {
-            let option = document.createElement('option');
+        for (const choice of choices) {
+            const option = document.createElement('option');
             option.innerHTML = choice;
             option.value = choice;
 
