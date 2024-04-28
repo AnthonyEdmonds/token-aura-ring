@@ -1,3 +1,5 @@
+import { Config } from "./Config.js";
+
 export class Aura
 {
     pixiCanvas;
@@ -5,9 +7,7 @@ export class Aura
     pixiGraphics;
     simpleToken;
 
-    static flagsNamespace = 'token-aura-ring';
-
-    static flagsKey = 'aura';
+    static namespace = 'token-aura-ring';
 
     static key = 'auraRing';
 
@@ -26,13 +26,17 @@ export class Aura
             Aura.add(simpleToken);
         }
 
-        simpleToken.auraRing.render();
+        if (simpleToken.auraRing.shouldDraw() === true) {
+            simpleToken.auraRing.renderAll();
+        }
     }
 
-    static flags()
+    static defaultSettings(name)
     {
         return {
             colour: '#000000',
+            delete: 'no',
+            name: name,
             opacity: 0.5,
             radius: 0,
             visibility: 'PLAYER',
@@ -47,11 +51,29 @@ export class Aura
 
     static hasFlags(simpleTokenDocument)
     {
-        if (simpleTokenDocument.flags.hasOwnProperty(Aura.flagsNamespace) !== true) {
-            return false;
+        return simpleTokenDocument.flags.hasOwnProperty(Aura.namespace) === true;
+    }
+
+    static migrateSettings(simpleTokenDocument)
+    {
+        if (Aura.hasFlags(simpleTokenDocument) !== true) {
+            return;
         }
 
-        return simpleTokenDocument.flags[Aura.flagsNamespace].hasOwnProperty(Aura.flagsKey) === true;
+        const auras = simpleTokenDocument.flags[Aura.namespace];
+        
+        for (const key in auras) {
+            const aura = auras[key];
+            const defaultSettings = Aura.defaultSettings(key);
+
+            for (const setting in defaultSettings) {
+                if (aura.hasOwnProperty(setting) === false) {
+                    aura[setting] = defaultSettings[setting];
+                }
+            }
+
+            simpleTokenDocument.setFlag(Aura.namespace, key, aura);
+        }
     }
 
     static refresh(simpleToken)
@@ -76,7 +98,7 @@ export class Aura
     {
         Hooks.off('initializeVisionSources', Aura.setup)
         
-        let container = new PIXI.Container();
+        const container = new PIXI.Container();
         container.name = 'tokenAuraRing';
         canvas.primary.addChild(container);
         
@@ -85,15 +107,23 @@ export class Aura
         Hooks.on('refreshToken', Aura.refresh);
         Hooks.on('updateToken', Aura.update);
 
-        for (let token of game.scenes.current.tokens.contents) {
+        for (const token of game.scenes.current.tokens.contents) {
+            Aura.migrateSettings(token.object.document);
             Aura.draw(token.object);
         }
 
         return container;
     }
 
-    static update(simpleTokenDocument)
+    static update(simpleTokenDocument, changes)
     {
+        if (
+            changes.hasOwnProperty('flags') === true
+            && changes.flags.hasOwnProperty(Aura.namespace) === true
+        ) {
+            Config.processChanges(simpleTokenDocument, changes.flags[Aura.namespace]);
+        }
+
         Aura.draw(simpleTokenDocument.object);
     }
 
@@ -122,7 +152,7 @@ export class Aura
 
     findCanvas()
     {
-        for (let container of canvas.primary.children) {
+        for (const container of canvas.primary.children) {
             if (container.name === 'tokenAuraRing') {
                 return container;
             }
@@ -131,32 +161,39 @@ export class Aura
         return Aura.setup(canvas.primary);
     }
 
-    getFlags()
+    getAuras()
     {
-        return this.simpleToken.document.getFlag(Aura.flagsNamespace, Aura.flagsKey);
+        return this.simpleToken.document.flags[Aura.namespace];
     }
-    
+
     move()
     {
         this.pixiContainer.position.set(this.simpleToken.x, this.simpleToken.y);
     }
 
-    render()
+    renderAll()
     {
-        let flags = this.getFlags();
+        const auras = this.getAuras();
+        const canvas = game.canvas.dimensions;
+
         this.pixiGraphics.clear();
-
-        if (this.shouldDraw(flags) !== true) {
-            return;
-        }
-
         this.move();
 
-        let canvas = game.canvas.dimensions;
-        let auraX = this.simpleToken.w / 2;
-        let auraY = this.simpleToken.h / 2;
-        let auraRadius = (flags.radius * (canvas.size / canvas.distance)) + auraX;
-        let auraOpacity = flags.opacity;
+        for (const name in auras) {
+            if (this.shouldRender(auras[name]) !== true) {
+                continue;
+            }
+
+            this.render(auras[name], canvas);
+        }
+    }
+
+    render(aura, canvas)
+    {
+        const auraX = this.simpleToken.w / 2;
+        const auraY = this.simpleToken.h / 2;
+        const auraRadius = (aura.radius * (canvas.size / canvas.distance)) + auraX;
+        let auraOpacity = aura.opacity;
 
         if (this.simpleToken.document.hidden === true) {
             if (auraOpacity > 0.25) {
@@ -165,34 +202,31 @@ export class Aura
         }
         
         this.pixiGraphics
-            .lineStyle(flags.weight, flags.colour, auraOpacity, 0)
+            .lineStyle(aura.weight, aura.colour, auraOpacity, 0)
             .drawCircle(auraX, auraY, auraRadius);
     }
 
-    shouldDraw(flags)
+    shouldDraw()
     {
-        if (flags.visibility === 'NONE') {
-            return false;
-        }
-
-        if (flags.radius < 1) {
-            return false;
-        }
-        
         if (this.simpleToken.document.hidden === true) {
             if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
                 return false;
             }
         }
 
-        if (game.user.hasRole(flags.visibility) !== true) {
-            return false;
-        }
-        
-        if (this.simpleToken.isVisible !== true) {
+        return this.simpleToken.isVisible === true;
+    }
+
+    shouldRender(flags)
+    {
+        if (flags.radius < 1) {
             return false;
         }
 
-        return flags.radius > 0;
+        if (flags.visibility === 'NONE') {
+            return false;
+        }
+
+        return game.user.hasRole(flags.visibility) === true;
     }
 }
