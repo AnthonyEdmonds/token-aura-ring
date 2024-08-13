@@ -245,7 +245,7 @@ export class Aura
 
     shouldRender(flags)
     {
-        if (flags.radius < 1) {
+        if (flags.radius <= 0) {
             return false;
         }
 
