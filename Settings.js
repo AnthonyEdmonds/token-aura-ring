@@ -26,7 +26,7 @@ export class Settings extends FormApplication
             resizable: true,
             template: `modules/token-aura-ring/settings.html`,
             title: 'Token Aura Ring settings', // TODO Actor name
-            width: 720,
+            width: 640,
         });
     }
 
@@ -46,12 +46,8 @@ export class Settings extends FormApplication
 
     static addSettingsButtonToConfig(config)
     {
-        console.log(config);
         const settings = new Settings(config);
-        // Testing
-        settings.render(true);
-
-        /*
+        
         const icon = document.createElement('i');
         icon.classList.add('fas', 'fa-ring');
 
@@ -68,6 +64,8 @@ export class Settings extends FormApplication
         formGroup.append(button);
 
         config.form.children[2].appendChild(formGroup);
-        */
+        
+        // TODO Remove after testing
+        settings.render(true);
     }
 }

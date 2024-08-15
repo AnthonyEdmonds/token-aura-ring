@@ -1,7 +1,7 @@
-<div class="package-configuration window-content">
-    <div class="flexrow">
+<form class="flexrow" autocomplete="off">
+    <div class="package-configuration">
         <aside class="sidebar flexcol">
-            <nav class="tabs">
+            <nav class="tabs flex1">
                 {{#each auras}}
                     <a class="item category-tab category-all active" data-tab="{{@key}}">{{@key}}</a>
                 {{else}}
@@ -10,61 +10,57 @@
                 {{/each}}
             </nav>
 
-            <button class="reset-all" type="button">
-                <i class="fas fa-plus"></i> Add Aura Ring
-            </button>
-        </aside>
-
-        <form class="categories flexcol" autocomplete="off">
-            <div class="scrollable">
-                {{#each auras}}
-                    <section class="tab category active" data-tab="{{@key}}" data-category="{{@key}}">
-                        <h2 class="border">{{@key}}</h2>
-                        <fieldset>
-                            <legend>Details</legend>
-                            {{ formGroup @root.form.name }}
-                            {{ formGroup @root.form.visibility }}
-                        </fieldset>
-                        <br/>
-                        <fieldset>
-                            <legend>Dimensions</legend>
-                            {{ formGroup @root.form.radius }}
-                            {{ formGroup @root.form.angle }}
-                            {{ formGroup @root.form.direction }}
-                        </fieldset>
-                        <br/>
-                        <fieldset>
-                            <legend>Stroke</legend>
-                            {{ formGroup @root.form.stroke.colour }}
-                            {{ formGroup @root.form.stroke.opacity }}
-                            {{ formGroup @root.form.stroke.weight }}
-                            {{ formGroup @root.form.stroke.close }}
-                        </fieldset>
-                        <br/>
-                        <fieldset>
-                            <legend>Fill</legend>
-                            {{ formGroup @root.form.fill.colour }}
-                            {{ formGroup @root.form.fill.opacity }}
-                        </fieldset>
-                        <br/>
-                        <div class="form-group" style="margin: 10px">
-                            <button type="button">
-                                <i class="fas fa-copy"></i> Duplicate Aura
-                            </button>
-
-                            <button type="button">
-                                <i class="fas fa-trash"></i> Delete Aura
-                            </button>
-                        </div>
-                    </section>
-                {{/each}}
-            </div>
-
-            <footer>
+            <footer class="flex0">
+                <button class="reset-all" type="button">
+                    <i class="fas fa-plus"></i> Add Aura Ring
+                </button>
                 <button type="submit">
                     <i class="fas fa-save"></i> Save All Changes
                 </button>
             </footer>
-        </form>
+        </aside>
     </div>
-</div>
+
+    <main class="window-content flexcol flex2">
+        <article>
+            {{#each auras}}
+                <section class="tab category active" data-tab="{{@key}}" data-category="{{@key}}">
+                    <h2 class="border">{{@key}}</h2>
+                    
+                    {{ formGroup @root.form.name classes="" }}
+                    {{ formGroup @root.form.visibility }}
+                
+                    <hr/>
+
+                    {{ formGroup @root.form.radius }}
+                    {{ formGroup @root.form.angle }}
+                    {{ formGroup @root.form.direction }}
+
+                    <hr/>
+
+                    {{ formGroup @root.form.stroke.colour }}
+                    {{ formGroup @root.form.stroke.opacity }}
+                    {{ formGroup @root.form.stroke.weight }}
+                    {{ formGroup @root.form.stroke.close }}
+
+                    <hr/>
+
+                    {{ formGroup @root.form.fill.colour }}
+                    {{ formGroup @root.form.fill.opacity }}
+                
+                    <hr/>
+                    
+                    <div class="form-group">
+                        <button type="button">
+                            <i class="fas fa-copy"></i> Duplicate Aura
+                        </button>
+
+                        <button type="button">
+                            <i class="fas fa-trash"></i> Delete Aura
+                        </button>
+                    </div>
+                </section>
+            {{/each}}
+        </article>
+    </main>
+</form>

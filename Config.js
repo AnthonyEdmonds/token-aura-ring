@@ -1,12 +1,5 @@
-import { Aura } from "./Aura.js";
-import { Form } from "./Form.js";
-
 export class Config
 {
-    form = new Form();
-
-    static timeout = 15;
-
     static windowId = 'token-aura-ring-config';
 
     static processChanges(simpleTokenDocument, changes)
@@ -68,56 +61,6 @@ export class Config
         this.resizeConfigForm(button);
     }
 
-    angle(key, aura)
-    {
-        return this.form.group(
-            'Angle (degrees)',
-            this.form.range(key, aura, 'angle', 360, 0, 5),
-            'How much of the circle to draw.',
-        );
-    }
-
-    colour(key, aura)
-    {
-        return this.form.group(
-            'Colour',
-            this.form.colour(key, aura, 'colour'),
-        );
-    }
-
-    configSection(key, aura)
-    {
-        const group = document.createElement('div');
-        group.id = this.form.id(key);
-
-        group.append(
-            this.name(key, aura),
-            this.radius(key, aura),
-            this.colour(key, aura),
-            this.opacity(key, aura),
-            this.weight(key, aura),
-            this.visibility(key, aura),
-            this.direction(key, aura),
-            this.angle(key, aura),
-            this.form.break(),
-        );
-
-        return group;
-    }
-
-    configTab()
-    {
-        const icon = this.form.icon('fa-ring');
-        const text = document.createTextNode('Aura Ring');
-        
-        const link = document.createElement('a');
-        link.classList.add('item');
-        link.setAttribute('data-tab', Aura.namespace);
-        link.append(icon, text);
-
-        return link;
-    }
-
     configWindow(simpleTokenDocument)
     {
         const configWindow = document.createElement('div');
@@ -138,15 +81,6 @@ export class Config
         configWindow.append(...sections, button);
 
         return configWindow;
-    }
-
-    direction(key, aura)
-    {
-        return this.form.group(
-            'Direction (degrees)',
-            this.form.range(key, aura, 'direction', 180, -180, 5),
-            'From the top of a token, where 0 is "forward". The aura will rotate with the token.',
-        );
     }
 
     markDelete(input)
@@ -177,28 +111,6 @@ export class Config
         );
     }
 
-    opacity(key, aura)
-    {
-        return this.form.group(
-            'Opacity',
-            this.form.range(key, aura, 'opacity'),
-        );
-    }
-
-    radius(key, aura)
-    {
-        return this.form.group(
-            'Radius (' + game.scenes.current.grid.units + ')',
-            this.form.number(key, aura, 'radius'),
-        );
-    }
-
-    resizeConfigForm(input)
-    {
-        const configForm = input.form.parentElement.parentElement;
-        configForm.style.height = 'auto';
-    }
-
     show(config)
     {
         config.position.width = 580;
@@ -218,22 +130,6 @@ export class Config
         content.insertBefore(
             configWindow,
             content.lastElementChild,
-        );
-    }
-
-    visibility(key, aura)
-    {
-        return this.form.group(
-            'Visibility',
-            this.form.select(key, aura, 'visibility', Object.values(CONST.USER_ROLE_NAMES)),
-        );
-    }
-
-    weight(key, aura)
-    {
-        return this.form.group(
-            'Weight (px)',
-            this.form.range(key, aura, 'weight', 16, 1, 1),
         );
     }
 }

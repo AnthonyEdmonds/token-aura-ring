@@ -1,7 +1,8 @@
 import { Form } from "./Form.js";
 
 export class AuraRing extends foundry.abstract.DataModel {
-    // TODO Pass in stored token / aura item for use in schema
+    // TODO Pass in stored token / aura item for current values
+    // TODO Pass in ID of Aura for field context
 
     static defineSchema() {
         return {
@@ -64,7 +65,7 @@ export class AuraRing extends foundry.abstract.DataModel {
             Form.dataFieldOptions(
                 'Direction (degrees)',
                 0,
-                'From the top of the token, where 0 is "forward". The Aura Ring will rotate with the token.',
+                'From the top of the token where 0 is "forward"; rotates with the token.',
             ),
             Form.dataFieldContext(
                 '.direction',
@@ -102,7 +103,6 @@ export class AuraRing extends foundry.abstract.DataModel {
             Form.dataFieldOptions(
                 'Fill Opacity',
                 0,
-                'Set to 0 to hide the fill.',
             ),
             Form.dataFieldContext(
                 '.fill.opacity',
@@ -123,7 +123,7 @@ export class AuraRing extends foundry.abstract.DataModel {
             Form.dataFieldOptions(
                 'Name',
                 'Aura', // TODO #
-                'A unique name for this Aura Ring.',
+                null,
                 true,
                 false,
                 function () {
@@ -145,9 +145,9 @@ export class AuraRing extends foundry.abstract.DataModel {
     {
         return Form.numberField(
             Form.dataFieldOptions(
-                'Radius',
+                `Radius (${game.scenes.current.grid.units})`,
                 0,
-                'How large the Aura Ring is, drawn from the edge of the token. Set to 0 to hide the Aura.',
+                'Size of the Aura Ring from the edge of the token.',
             ),
             Form.dataFieldContext(
                 '.radius',
@@ -199,7 +199,6 @@ export class AuraRing extends foundry.abstract.DataModel {
             Form.dataFieldOptions(
                 'Stroke Opacity',
                 1,
-                'Set to 0 to hide the outline.',
             ),
             Form.dataFieldContext(
                 '.stroke.opacity',
@@ -220,7 +219,6 @@ export class AuraRing extends foundry.abstract.DataModel {
             Form.dataFieldOptions(
                 'Stroke Weight (pixels)',
                 4,
-                'How thick the outline should be.',
             ),
             Form.dataFieldContext(
                 '.stroke.weight',
@@ -239,9 +237,9 @@ export class AuraRing extends foundry.abstract.DataModel {
     {
         return Form.stringField(
             Form.dataFieldOptions(
-                'Visibility',
+                'Visibile to',
                 'PLAYER',
-                'Which roles should be able to see the Aura Ring.',
+                null,
                 true,
                 false,
                 function () {
