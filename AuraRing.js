@@ -1,260 +1,287 @@
-import { Form } from "./Form.js";
+import { AuraRingFlags } from "./AuraRingFlags.js";
 
-export class AuraRing extends foundry.abstract.DataModel {
-    // TODO Pass in stored token / aura item for current values
-    // TODO Pass in ID of Aura for field context
+export class AuraRing
+{
+    static canvasKey = 'auraRing';
 
-    static defineSchema() {
-        return {
-            angle: AuraRing.angleField(),
-            direction: AuraRing.directionField(),
-            fill : {
-                colour: AuraRing.fillColourField(),
-                opacity: AuraRing.fillOpacityField(),
-            },
-            name: AuraRing.nameField(),
-            radius: AuraRing.radiusField(),
-            stroke: {
-                close: AuraRing.strokeCloseField(),
-                colour: AuraRing.strokeColourField(),
-                opacity: AuraRing.strokeOpacityField(),
-                weight: AuraRing.strokeWeightField(),
-            },
-            visibility: AuraRing.visibilityField(),
-        };
+    pixiCanvas;
+
+    pixiContainer;
+
+    pixiGraphics;
+    
+    simpleToken;
+
+    // Setup
+    constructor(simpleToken)
+    {
+        this.pixiCanvas = this.findCanvas();
+        this.pixiContainer = new PIXI.Container();
+        this.pixiGraphics = new PIXI.Graphics();
+        
+        this.pixiCanvas.addChild(this.pixiContainer);
+        this.pixiContainer.addChild(this.pixiGraphics);
+
+        this.simpleToken = simpleToken;
     }
 
-    // Data
-    static roles()
+    static setup()
     {
-        const roles = {};
-        const userRoles = Object.values(CONST.USER_ROLE_NAMES);
+        Hooks.off('initializeVisionSources', AuraRing.setup)
+        
+        const container = new PIXI.Container();
+        container.name = 'tokenAuraRing';
+        canvas.primary.addChild(container);
+        
+        Hooks.on('destroyToken', AuraRing.removeCanvas);
+        Hooks.on('drawToken', AuraRing.drawCanvas);
+        Hooks.on('refreshToken', AuraRing.refreshCanvas);
+        Hooks.on('sightRefresh', AuraRing.refreshSight)
+        Hooks.on('updateToken', AuraRing.updateCanvas);
 
-        for (const role of userRoles) {
-            roles[role] = role;
+        for (const token of game.scenes.current.tokens.contents) {
+            AuraRing.drawCanvas(token.object);
         }
 
-        return roles;
+        return container;
     }
 
-    // Fields
-    static angleField()
+    // Canvas
+    static clearCanvas(simpleToken)
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                'Angle (degrees)',
-                360,
-                'How much of the circle to draw.',
-            ),
-            Form.dataFieldContext(
-                '.angle',
-            ),
-            Form.numberFieldParams(
-                5,
-                5,
-                360,
-                true,
-                true,
-            )
-        );
+        if (AuraRing.hasCanvas(simpleToken) === true) {
+            simpleToken[AuraRing.canvasKey].clear();
+        }
     }
 
-    static directionField()
+    static drawCanvas(simpleToken)
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                'Direction (degrees)',
-                0,
-                'From the top of the token where 0 is "forward"; rotates with the token.',
-            ),
-            Form.dataFieldContext(
-                '.direction',
-            ),
-            Form.numberFieldParams(
-                1,
-                -180,
-                180,
-                true,
-                false,
-            )
-        );
+        if (AuraRingFlags.hasAuraRings(simpleToken.document) !== true) {
+            return;
+        }
+
+        if (AuraRing.hasCanvas(simpleToken) !== true) {
+            simpleToken[AuraRing.canvasKey] = new AuraRing(simpleToken);
+        }
+
+        AuraRing.clearCanvas(simpleToken);
+
+        if (simpleToken[AuraRing.canvasKey].shouldDraw() === true) {
+            simpleToken[AuraRing.canvasKey].renderAll();
+        }
     }
 
-    static fillColourField()
+    static hasCanvas(simpleToken)
     {
-        return Form.colourField(
-            Form.dataFieldOptions(
-                'Fill Colour',
-                '#000000',
-            ),
-            Form.dataFieldContext(
-                '.fill.colour',
-            ),
-            Form.stringFieldParams(
-                false,
-                true,
-            ),
-        );
+        return simpleToken.hasOwnProperty(AuraRing.canvasKey) === true;
     }
 
-    static fillOpacityField()
+    static refreshCanvas(simpleToken)
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                'Fill Opacity',
-                0,
-            ),
-            Form.dataFieldContext(
-                '.fill.opacity',
-            ),
-            Form.numberFieldParams(
-                0.05,
-                0,
-                1,
-                false,
-                true,
-            ),
-        );
+        if (AuraRing.hasCanvas(simpleToken) === true) {
+            simpleToken[AuraRing.canvasKey].move();
+        }
     }
 
-    static nameField()
+    static removeCanvas(simpleToken)
     {
-        return Form.stringField(
-            Form.dataFieldOptions(
-                'Name',
-                'Aura', // TODO #
-                null,
-                true,
-                false,
-                function () {
-                    return true; // TODO Check is unique
-                },
-                'must be unique.',
-            ),
-            Form.dataFieldContext(
-                '.name', // TODO Key
-            ),
-            Form.stringFieldParams(
-                false,
-                true,
-            ),
-        );
+        if (AuraRing.hasCanvas(simpleToken) === true) {
+            simpleToken[AuraRing.canvasKey].destroy();
+        }
     }
 
-    static radiusField()
+    static updateCanvas(simpleTokenDocument)
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                `Radius (${game.scenes.current.grid.units})`,
-                0,
-                'Size of the Aura Ring from the edge of the token.',
-            ),
-            Form.dataFieldContext(
-                '.radius',
-            ),
-            Form.numberFieldParams(
-                null,
-                null,
-                null,
-                false,
-                true,
-            ),
-        );
+        AuraRing.drawCanvas(simpleTokenDocument.object);
     }
 
-    static strokeCloseField()
+    // Vision
+    static refreshSight(event)
     {
-        return Form.booleanField(
-            Form.dataFieldOptions(
-                'Close Stroke?',
-                false,
-                'Draw a complete outline when using an angled Aura.',
-            ),
-            Form.dataFieldContext(
-                '.stroke.close',
-            ),
-        );
+        for (const simpleTokenDocument of game.scenes.current.tokens.contents) {
+            if (AuraRing.hasCanvas(simpleTokenDocument.object) !== true) {
+                return;
+            }
+
+            simpleTokenDocument.object[AuraRing.canvasKey].pixiGraphics.alpha = simpleTokenDocument.object.isVisible === true ? 1 : 0;
+        }
     }
 
-    static strokeColourField()
+    // PIXI Graphics
+    clear()
     {
-        return Form.colourField(
-            Form.dataFieldOptions(
-                'Stroke Colour',
-                '#000000',
-            ),
-            Form.dataFieldContext(
-                '.stroke.colour',
-            ),
-            Form.stringFieldParams(
-                false,
-                true,
-            ),
-        );
+        this.pixiGraphics.clear();
     }
 
-    static strokeOpacityField()
+    destroy()
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                'Stroke Opacity',
-                1,
-            ),
-            Form.dataFieldContext(
-                '.stroke.opacity',
-            ),
-            Form.numberFieldParams(
-                0.05,
-                0,
-                1,
-                false,
-                true,
-            ),
-        );
+        this.pixiCanvas.removeChild(this.pixiContainer);
+        this.pixiContainer.removeChild(this.pixiGraphics);
+
+        this.pixiGraphics.destroy();
+        this.pixiContainer.destroy();
+
+        delete this.simpleToken.auraRing;
     }
 
-    static strokeWeightField()
+    findCanvas()
     {
-        return Form.numberField(
-            Form.dataFieldOptions(
-                'Stroke Weight (pixels)',
-                4,
-            ),
-            Form.dataFieldContext(
-                '.stroke.weight',
-            ),
-            Form.numberFieldParams(
-                1,
-                1,
-                null,
-                true,
-                true,
-            ),
-        );
+        for (const container of canvas.primary.children) {
+            if (container.name === 'tokenAuraRing') {
+                return container;
+            }
+        }
+
+        return AuraRing.setup(canvas.primary);
     }
 
-    static visibilityField()
+    move()
     {
-        return Form.stringField(
-            Form.dataFieldOptions(
-                'Visibile to',
-                'PLAYER',
-                null,
-                true,
-                false,
-                function () {
-                    return true; // TODO Check is unique
-                },
-                'must be unique.',
-            ),
-            Form.dataFieldContext(
-                '.visibility', // TODO Key
-            ),
-            Form.stringFieldParams(
-                false,
-                true,
-                AuraRing.roles(),
-            ),
+        this.pixiContainer.position.set(this.simpleToken.x, this.simpleToken.y);
+    }
+
+    renderAll()
+    {
+        const auraRings = AuraRingFlags.getAuraRings(this.simpleToken.document);
+
+        this.move();
+
+        for (const auraRing of auraRings) {
+            if (this.shouldRender(auraRing) !== true) {
+                continue;
+            }
+
+            this.render(auraRing);
+        }
+    }
+
+    render(auraRing)
+    {
+        if (this.hasFill(auraRing) === true) {
+            this.renderFill(auraRing);
+        }
+
+        if (this.hasStroke(auraRing) === true) {
+            console.log('Has stroke');
+            this.renderStroke(auraRing);
+        }
+    }
+
+    renderFill(auraRing)
+    {
+        this.pixiGraphics.beginFill(
+            auraRing.fill_colour,
+            this.auraOpacity(auraRing.fill_opacity),
         );
+
+        this.drawAuraRing(auraRing, true);
+        this.pixiGraphics.endFill();
+    }
+
+    renderStroke(auraRing)
+    {
+        this.pixiGraphics.lineStyle(
+            auraRing.stroke_weight,
+            auraRing.stroke_colour,
+            this.auraOpacity(auraRing.stroke_opacity),
+            0,
+        );
+
+        this.drawAuraRing(auraRing, auraRing.stroke_close);
+    }
+
+    drawAuraRing(auraRing, closePath)
+    {
+        const canvas = game.canvas.dimensions;
+        const originX = this.simpleToken.w / 2;
+        const originY = this.simpleToken.h / 2;
+        const auraRadius = (auraRing.radius * (canvas.size / canvas.distance)) + originX;
+
+        auraRing.angle === 360
+            ? this.drawCircularAuraRing(originX, originY, auraRadius)
+            : this.drawAngledAuraRing(originX, originY, auraRadius, auraRing.angle, auraRing.direction, closePath);
+    }
+
+    drawAngledAuraRing(originX, originY, radius, angle, auraDirection, closePath)
+    {
+        const radiansPerDegree = Math.PI / 180;
+        const startAngle = ((-90 + auraDirection + this.simpleToken.document.rotation) - (angle / 2)) * radiansPerDegree;
+        const endAngle = startAngle + (angle * radiansPerDegree);
+        const arcStartX = originX + radius * Math.cos(startAngle);
+        const arcStartY = originY + radius * Math.sin(startAngle);
+        
+        this.pixiGraphics.startPoly();
+        
+        if (closePath === true) {
+            this.pixiGraphics.moveTo(originX, originY);
+            this.pixiGraphics.lineTo(arcStartX, arcStartY);
+        }
+
+        this.pixiGraphics.arc(originX, originY, radius, startAngle, endAngle);
+        
+        if (closePath === true) {
+            this.pixiGraphics.lineTo(originX, originY);
+            this.pixiGraphics.closePath();
+        }
+
+        this.pixiGraphics.finishPoly();
+    }
+
+    drawCircularAuraRing(originX, originY, radius)
+    {
+        this.pixiGraphics.drawCircle(originX, originY, radius);
+    }
+
+    shouldDraw()
+    {
+        if (this.simpleToken.document.hidden === true) {
+            if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    shouldRender(auraRing)
+    {
+        if (auraRing.radius < 1) {
+            return false;
+        }
+
+        if (auraRing.visibility === 'NONE') {
+            return false;
+        }
+
+        if (
+            this.hasStroke(auraRing) === false 
+            && this.hasFill(auraRing) === false
+        ) {
+            return false;
+        }
+
+        if (game.user.hasRole(auraRing.visibility) !== true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Aura Rings
+    auraOpacity(opacity)
+    {
+        return this.simpleToken.document.hidden === true
+            ? opacity / 2
+            : opacity;
+    }
+
+    hasFill(auraRing)
+    {
+        return auraRing.fill_opacity > 0;
+    }
+
+    hasStroke(auraRing)
+    {
+        return auraRing.stroke_opacity > 0 && auraRing.stroke_weight > 0;
     }
 }

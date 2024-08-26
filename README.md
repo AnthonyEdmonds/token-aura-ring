@@ -2,7 +2,7 @@
 
 A simple module for Foundry VTT which adds outlined aura rings to a token.
 
-![How token aura rings appear to the game master](gm.jpg)
+![How token aura rings appear to the game master](images/gm.jpg)
 
 Inspired by the [Token Auras](https://foundryvtt.com/packages/token-auras) add-on.
 
@@ -14,7 +14,7 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 This means that the range of the aura ring is calculated from the edge of the token, instead of the centre.
 
-![How token aura rings appear to players](player.jpg)
+![How token aura rings appear to players](images/player.jpg)
 
 Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
@@ -32,7 +32,7 @@ https://raw.githubusercontent.com/AnthonyEdmonds/token-aura-ring/main/module.jso
 
 Once enabled, you can add and configure aura rings from the "Aura Ring" tab on any token settings page.
 
-![An example of a token aura ring configuration](config.jpg)
+![An example of a token aura ring configuration](images/config.jpg)
 
 From there you can set the radius, colour, opacity, weight, and visibility of the aura ring.
 
@@ -46,7 +46,7 @@ To remove an aura ring, set the radius to zero, the visibility to "NONE", or pre
 
 You can adjust the "Direction" and "Angle" settings to create arcs instead of circles.
 
-![An example of a token with arcs instead of circles](arc.jpg)
+![An example of a token with arcs instead of circles](images/arc.jpg)
 
 The "Direction" setting rotates the arc around the token.
 
