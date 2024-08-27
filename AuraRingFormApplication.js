@@ -63,8 +63,6 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     {
         super._onRender(context, options);
 
-        console.log('Rendered', this);
-
         this.addEventListeners();
         this.changeTab(this.currentTab);
     }
@@ -147,7 +145,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     // Aura Rings
     addAuraRing()
     {
-        const id = this.nextAvailableId();
+        const id = AuraRingFlags.nextAvailableId(this.auraRings);
 
         this.auraRings.push({
             id: id,
@@ -174,7 +172,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         const source = this.getAuraRing(id);
         const clone = deepClone(source);
 
-        clone.id = this.nextAvailableId();
+        clone.id = AuraRingFlags.nextAvailableId(this.auraRings);
         clone.name = `Copy of ${source.name}`;
         this.auraRings.push(clone);
 
@@ -210,24 +208,6 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         }
 
         return false;
-    }
-
-    nextAvailableId()
-    {
-        let potentialId = 0;
-        const usedIds = [];
-
-        for (const auraRing of this.auraRings) {
-            usedIds.push(auraRing.id);
-        }
-        
-        while (potentialId < 100) {
-            if (usedIds.includes(potentialId) === false) {
-                return potentialId;
-            }
-
-            potentialId++;
-        }
     }
 
     renameAuraRing(id, name)

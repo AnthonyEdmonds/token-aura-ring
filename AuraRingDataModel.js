@@ -27,7 +27,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
 
     static defineSchema() 
     {
-        const defaults = AuraRingDataModel.defaultSettings('Aura');
+        const defaults = AuraRingDataModel.defaultSettings();
 
         return {
             angle: AuraRingDataModel.angleField(defaults.angle),
@@ -45,7 +45,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
         };
     }
 
-    static defaultSettings(name)
+    static defaultSettings()
     {
         return {
             angle: 360,
@@ -53,8 +53,8 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             fill_colour: '#000000',
             fill_opacity: 0,
             id: 0,
-            name: name,
-            radius: 0,
+            name: 'Aura',
+            radius: 20,
             stroke_close: false,
             stroke_colour: '#000000',
             stroke_opacity: 0.5,

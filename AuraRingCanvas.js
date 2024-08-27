@@ -1,12 +1,12 @@
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
-export class AuraRing
+export class AuraRingCanvas
 {
-    static canvasKey = 'auraRing';
+    static key = 'tokenAuraRing';
 
-    pixiCanvas;
+    pixiAurasContainer;
 
-    pixiContainer;
+    pixiAuraContainer;
 
     pixiGraphics;
     
@@ -15,154 +15,141 @@ export class AuraRing
     // Setup
     constructor(simpleToken)
     {
-        this.pixiCanvas = this.findCanvas();
-        this.pixiContainer = new PIXI.Container();
+        this.pixiAurasContainer = AuraRingCanvas.findPixiAurasContainer();
+        this.pixiAuraContainer = new PIXI.Container();
         this.pixiGraphics = new PIXI.Graphics();
         
-        this.pixiCanvas.addChild(this.pixiContainer);
-        this.pixiContainer.addChild(this.pixiGraphics);
+        this.pixiAurasContainer.addChild(this.pixiAuraContainer);
+        this.pixiAuraContainer.addChild(this.pixiGraphics);
 
         this.simpleToken = simpleToken;
     }
 
-    static setup()
+    // Handlers
+    static async handleDestroyToken(simpleToken)
     {
-        Hooks.off('initializeVisionSources', AuraRing.setup)
-        
-        const container = new PIXI.Container();
-        container.name = 'tokenAuraRing';
-        canvas.primary.addChild(container);
-        
-        Hooks.on('destroyToken', AuraRing.removeCanvas);
-        Hooks.on('drawToken', AuraRing.drawCanvas);
-        Hooks.on('refreshToken', AuraRing.refreshCanvas);
-        Hooks.on('sightRefresh', AuraRing.refreshSight)
-        Hooks.on('updateToken', AuraRing.updateCanvas);
+        AuraRingCanvas.getCanvas(simpleToken)?.destroyPixiAuraContainer();
+    }
 
-        for (const token of game.scenes.current.tokens.contents) {
-            AuraRing.drawCanvas(token.object);
+    static async handleRefreshToken(simpleToken)
+    {
+        AuraRingCanvas.getCanvas(simpleToken)?.drawCanvas();
+    }
+
+    static async handleSightRefresh()
+    {
+        for (const simpleTokenDocument of game.scenes.current.tokens) {
+            AuraRingCanvas.getCanvas(simpleTokenDocument.object)?.refreshSight();
         }
-
-        return container;
     }
 
     // Canvas
-    static clearCanvas(simpleToken)
+    static getCanvas(simpleToken)
     {
-        if (AuraRing.hasCanvas(simpleToken) === true) {
-            simpleToken[AuraRing.canvasKey].clear();
-        }
-    }
-
-    static drawCanvas(simpleToken)
-    {
-        if (AuraRingFlags.hasAuraRings(simpleToken.document) !== true) {
-            return;
+        if (AuraRingCanvas.hasCanvas(simpleToken) === true) {
+            return simpleToken[AuraRingCanvas.key];
         }
 
-        if (AuraRing.hasCanvas(simpleToken) !== true) {
-            simpleToken[AuraRing.canvasKey] = new AuraRing(simpleToken);
+        if (AuraRingCanvas.shouldHaveCanvas(simpleToken) === true) {
+            return this.makeCanvas(simpleToken);
         }
 
-        AuraRing.clearCanvas(simpleToken);
-
-        if (simpleToken[AuraRing.canvasKey].shouldDraw() === true) {
-            simpleToken[AuraRing.canvasKey].renderAll();
-        }
+        return null;
     }
 
     static hasCanvas(simpleToken)
     {
-        return simpleToken.hasOwnProperty(AuraRing.canvasKey) === true;
+        return simpleToken.hasOwnProperty(AuraRingCanvas.key) === true;
     }
 
-    static refreshCanvas(simpleToken)
+    static makeCanvas(simpleToken)
     {
-        if (AuraRing.hasCanvas(simpleToken) === true) {
-            simpleToken[AuraRing.canvasKey].move();
-        }
+        const auraRingCanvas = new AuraRingCanvas(simpleToken);
+        simpleToken[AuraRingCanvas.key] = auraRingCanvas;
+
+        return auraRingCanvas;
     }
 
-    static removeCanvas(simpleToken)
+    static shouldHaveCanvas(simpleToken)
     {
-        if (AuraRing.hasCanvas(simpleToken) === true) {
-            simpleToken[AuraRing.canvasKey].destroy();
-        }
+        return AuraRingFlags.hasAuraRings(simpleToken.document);
     }
 
-    static updateCanvas(simpleTokenDocument)
-    {
-        AuraRing.drawCanvas(simpleTokenDocument.object);
-    }
-
-    // Vision
-    static refreshSight(event)
-    {
-        for (const simpleTokenDocument of game.scenes.current.tokens.contents) {
-            if (AuraRing.hasCanvas(simpleTokenDocument.object) !== true) {
-                return;
-            }
-
-            simpleTokenDocument.object[AuraRing.canvasKey].pixiGraphics.alpha = simpleTokenDocument.object.isVisible === true ? 1 : 0;
-        }
-    }
-
-    // PIXI Graphics
-    clear()
+    drawCanvas()
     {
         this.pixiGraphics.clear();
+
+        if (this.shouldDraw() === true) {
+            this.renderAuraRings();
+        }
     }
 
-    destroy()
+    refreshSight()
     {
-        this.pixiCanvas.removeChild(this.pixiContainer);
-        this.pixiContainer.removeChild(this.pixiGraphics);
-
-        this.pixiGraphics.destroy();
-        this.pixiContainer.destroy();
-
-        delete this.simpleToken.auraRing;
+        this.pixiGraphics.alpha = this.simpleToken.isVisible === true ? 1 : 0;
     }
 
-    findCanvas()
+    // PIXI Auras Container
+    static findPixiAurasContainer()
     {
         for (const container of canvas.primary.children) {
-            if (container.name === 'tokenAuraRing') {
+            if (container.name === AuraRingCanvas.key) {
                 return container;
             }
         }
 
-        return AuraRing.setup(canvas.primary);
+        return AuraRingCanvas.makePixiAurasContainer();
     }
 
-    move()
+    static makePixiAurasContainer()
     {
-        this.pixiContainer.position.set(this.simpleToken.x, this.simpleToken.y);
+        const container = new PIXI.Container();
+        container.name = AuraRingCanvas.key;
+        canvas.primary.addChild(container);
+
+        return container;
     }
 
-    renderAll()
+    // PIXI Aura Container
+    destroyPixiAuraContainer()
+    {
+        this.pixiAurasContainer.removeChild(this.pixiAuraContainer);
+        this.pixiAuraContainer.removeChild(this.pixiGraphics);
+
+        this.pixiGraphics.destroy();
+        this.pixiAuraContainer.destroy();
+
+        delete this.simpleToken[AuraRingCanvas.key];
+    }
+
+    movePixiAuraContainer()
+    {
+        this.pixiAuraContainer.position.set(this.simpleToken.x, this.simpleToken.y);
+    }
+
+    // PIXI Graphics
+    renderAuraRings()
     {
         const auraRings = AuraRingFlags.getAuraRings(this.simpleToken.document);
 
-        this.move();
+        this.movePixiAuraContainer();
 
         for (const auraRing of auraRings) {
             if (this.shouldRender(auraRing) !== true) {
                 continue;
             }
 
-            this.render(auraRing);
+            this.renderAuraRing(auraRing);
         }
     }
 
-    render(auraRing)
+    renderAuraRing(auraRing)
     {
         if (this.hasFill(auraRing) === true) {
             this.renderFill(auraRing);
         }
 
         if (this.hasStroke(auraRing) === true) {
-            console.log('Has stroke');
             this.renderStroke(auraRing);
         }
     }
@@ -240,7 +227,7 @@ export class AuraRing
             }
         }
 
-        return true;
+        return AuraRingFlags.hasAuraRings(this.simpleToken.document) === true;
     }
 
     shouldRender(auraRing)

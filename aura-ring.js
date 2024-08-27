@@ -1,4 +1,4 @@
-import { AuraRing } from './AuraRing.js';
+import { AuraRingCanvas } from './AuraRingCanvas.js';
 import { AuraRingFormApplication } from './AuraRingFormApplication.js';
 
 Hooks.on('renderTokenConfig', function (config) {
@@ -21,12 +21,24 @@ Hooks.on('renderTokenConfig', function (config) {
 
     config.form.children[1].appendChild(formGroup);
     config.form.parentElement.parentElement.style.height = 'auto';
-
-    // TODO Token breaks when config is open, but works once closed.
 });
 
-Hooks.on('initializeVisionSources', AuraRing.setup);
+/**
+ * Auras can only be drawn once vision has been established
+ * Tokens are completely removed and redrawn when updated, moved, etc.
+ */
+Hooks.on('initializeVisionSources', function () {
+    AuraRingCanvas.makePixiAurasContainer();
+    
+    // Fired on: deleted, updated
+    Hooks.on('destroyToken', AuraRingCanvas.handleDestroyToken);
 
-// TODO Attempt migration of auras.
-// TODO May be missing some update states when redrawing / rotating
+    // Fired on: created, hovered, moved, rotated, selected, updated
+    Hooks.on('refreshToken', AuraRingCanvas.handleRefreshToken);
+
+    // Fired on: deleted, moved, selected, updated
+    Hooks.on('sightRefresh', AuraRingCanvas.handleSightRefresh);
+});
+
 // TODO Update preview of token
+// TODO Might need update hook for turning Aura rendering on / off
