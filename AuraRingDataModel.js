@@ -56,8 +56,8 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             name: 'Aura',
             radius: 20,
             stroke_close: false,
-            stroke_colour: '#000000',
-            stroke_opacity: 0.5,
+            stroke_colour: '#ff0000',
+            stroke_opacity: 0.75,
             stroke_weight: 4,
             visibility: 'PLAYER',
         };
@@ -317,7 +317,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 0,
                 1,
                 false,
-                true,
             ),
         );
     }

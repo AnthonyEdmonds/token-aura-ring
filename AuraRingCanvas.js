@@ -186,6 +186,8 @@ export class AuraRingCanvas
         );
 
         this.drawAuraRing(auraRing, auraRing.stroke_close);
+
+        this.pixiGraphics.lineStyle(0, '#000000', 0, 0);
     }
 
     drawAuraRing(auraRing, closePath)
