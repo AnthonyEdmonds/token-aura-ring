@@ -1,0 +1,72 @@
+<div
+    class="flexrow"
+    style="margin: -1rem; height: 106%;"
+>
+    <aside
+        class="sidebar flexcol"
+        style="justify-content: space-between; overflow: auto;"
+    >
+        <nav class="tabs">
+            {{#each auraRings as |auraRing|}}
+                <a
+                    class="item category-tab category-all"
+                    data-action="changeTab"
+                    data-group="auraRingTabs"
+                    data-tab="{{auraRing.id}}"
+                >{{auraRing.name}}</a>
+            {{else}}
+                <p>No Aura Rings have been added.</p>
+                <p>Press the "Add Aura Ring" button below to create one.</p>
+            {{/each}}
+        </nav>
+
+        <footer>
+            <button
+                data-action="addAuraRing"
+                style="margin-top: 1rem; margin-bottom: 0.5rem;"
+                type="button"
+            >
+                <i class="fas fa-plus"></i> Add Aura Ring
+            </button>
+
+            <button type="submit">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </footer>
+    </aside>
+
+    <main
+        class="categories window-content"
+        style="overflow: auto;"
+    >
+        {{#each auraRings as |auraRing|}}
+            <article
+                class="tab category flexcol flex1"
+                data-group="auraRingTabs"
+                data-tab="{{auraRing.id}}"
+                style="justify-content: space-between;"
+            >
+                {{ formGroup auraRing }}
+
+                <footer style="margin: 0; margin-top: 1rem;">
+                    <button 
+                        data-action="duplicateAuraRing"
+                        data-aura="{{auraRing.id}}"
+                        style="margin-bottom: 0.5rem;"
+                        type="button"
+                    >
+                        <i class="fas fa-copy"></i> Duplicate Aura Ring
+                    </button>
+
+                    <button
+                        data-action="deleteAuraRing"
+                        data-aura="{{auraRing.id}}"
+                        type="button"
+                    >
+                        <i class="fas fa-trash"></i> Delete Aura Ring
+                    </button>
+                </footer>
+            </article>
+        {{/each}}
+    </main>
+</div>
