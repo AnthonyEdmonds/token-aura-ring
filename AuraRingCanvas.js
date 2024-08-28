@@ -1,6 +1,5 @@
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
-// TODO Test on client screen
 export class AuraRingCanvas
 {
     static key = 'tokenAuraRing';
@@ -48,6 +47,11 @@ export class AuraRingCanvas
         for (const simpleTokenDocument of game.scenes.current.tokens) {
             AuraRingCanvas.getCanvas(simpleTokenDocument.object)?.refreshSight();
         }
+    }
+
+    static async handleUpdateToken(simpleTokenDocument)
+    {
+        AuraRingCanvas.handleRefreshToken(simpleTokenDocument.object);
     }
 
     // Canvas

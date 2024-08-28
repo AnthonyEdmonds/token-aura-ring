@@ -38,4 +38,7 @@ Hooks.on('initializeVisionSources', function () {
 
     // Fired on: deleted, moved, selected, updated
     Hooks.on('sightRefresh', AuraRingCanvas.handleSightRefresh);
+
+    // Fired on: updated (for client)
+    Hooks.on('updateToken', AuraRingCanvas.handleUpdateToken);
 });

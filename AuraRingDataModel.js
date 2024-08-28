@@ -240,10 +240,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 null,
                 true,
                 false,
-                function () {
-                    return true; // TODO Check is unique
-                },
-                'must be unique.',
             ),
             AuraRingField.dataFieldContext(
                 'name',
@@ -355,10 +351,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 null,
                 true,
                 false,
-                function () {
-                    return true; // TODO Check is unique
-                },
-                'must be unique.',
             ),
             AuraRingField.dataFieldContext(
                 'visibility',
