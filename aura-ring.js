@@ -39,6 +39,3 @@ Hooks.on('initializeVisionSources', function () {
     // Fired on: deleted, moved, selected, updated
     Hooks.on('sightRefresh', AuraRingCanvas.handleSightRefresh);
 });
-
-// TODO Update preview of token
-// TODO Might need update hook for turning Aura rendering on / off

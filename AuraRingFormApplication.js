@@ -1,3 +1,4 @@
+import { AuraRingCanvas } from "./AuraRingCanvas.js";
 import { AuraRingDataModel } from "./AuraRingDataModel.js"
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
@@ -59,17 +60,20 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         this.auraRings = AuraRingFlags.getAuraRings(this.preview);
     }
 
+    _onChangeForm(context, event)
+    {
+        if (event.target.form !== null) {
+            this.previewFormData(event.target.form);
+        }
+    }
+
     _onRender(context, options)
     {
         super._onRender(context, options);
 
         this.addEventListeners();
         this.changeTab(this.currentTab);
-    }
-
-    _onFirstRender(context, options)
-    {
-        super._onFirstRender(context, options);
+        this.previewFormData(this.element);
     }
 
     _prepareContext(options)
@@ -112,29 +116,10 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     static async handleForm(event, form, formData)
     {
-        const data = {};
-        const newAuraRings = [];
-
-        for (const field in formData.object) {
-            const index = field.indexOf('_');
-            const id = field.slice(0, index);
-            const key = field.slice(index + 1);
-            const value = formData.object[field];
-
-            if (data.hasOwnProperty(id) === false) {
-                data[id] = {
-                    id: id,
-                };
-            }
-
-            data[id][key] = value;
-        }
-
-        for (const key in data) {
-            newAuraRings.push(data[key]);
-        }
-
-        AuraRingFlags.setAuraRings(this.preview, newAuraRings);
+        AuraRingFlags.setAuraRings(
+            this.preview, 
+            this.gatherFormData(formData),
+        );
     }
 
     static async handleRenameAuraRing(event)
@@ -182,8 +167,8 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     getAuraRing(id)
     {
-        if (typeof id !== 'number') {
-            id = parseInt(id);
+        if (typeof id === 'number') {
+            id = `${id}`;
         }
 
         for (const auraRing of this.auraRings) {
@@ -197,8 +182,8 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     getAuraRingIndex(id)
     {
-        if (typeof id !== 'number') {
-            id = parseInt(id);
+        if (typeof id === 'number') {
+            id = `${id}`;
         }
 
         for (const index in this.auraRings) {
@@ -214,8 +199,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     {
         const index = this.getAuraRingIndex(id);
         this.auraRings[index].name = name;
-
-        this.render(); // TODO Changing name loses changes due to re-render
+        this.render();
     }
 
     sortAuraRings (first, second) {
@@ -287,5 +271,44 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         }
 
         this.currentTab = target;
+    }
+
+    gatherFormData(formData)
+    {
+        const data = {};
+        const newAuraRings = [];
+
+        for (const field in formData.object) {
+            const index = field.indexOf('_');
+            const id = field.slice(0, index);
+            const key = field.slice(index + 1);
+            const value = formData.object[field];
+
+            if (data.hasOwnProperty(id) === false) {
+                data[id] = {
+                    id: id,
+                };
+            }
+
+            data[id][key] = value;
+        }
+
+        for (const key in data) {
+            newAuraRings.push(data[key]);
+        }
+
+        return newAuraRings;
+    }
+
+    previewFormData(form)
+    {
+        const formData = new FormDataExtended(form);
+        const newAuraRings = this.gatherFormData(formData);
+
+        for (const index in newAuraRings) {
+            this.auraRings[index] = newAuraRings[index];
+        }
+
+        AuraRingCanvas.handleRefreshToken(this.preview.object);
     }
 }

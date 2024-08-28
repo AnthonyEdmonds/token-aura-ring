@@ -1,5 +1,6 @@
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
+// TODO Test on client screen
 export class AuraRingCanvas
 {
     static key = 'tokenAuraRing';
@@ -9,7 +10,7 @@ export class AuraRingCanvas
     pixiAuraContainer;
 
     pixiGraphics;
-    
+
     simpleToken;
 
     // Setup
@@ -23,6 +24,12 @@ export class AuraRingCanvas
         this.pixiAuraContainer.addChild(this.pixiGraphics);
 
         this.simpleToken = simpleToken;
+    }
+
+    // Getters
+    get isBeingPreviewed()
+    {
+        return typeof this.simpleToken._preview !== 'undefined';
     }
 
     // Handlers
@@ -221,6 +228,10 @@ export class AuraRingCanvas
 
     shouldDraw()
     {
+        if (this.isBeingPreviewed === true) {
+            return false;
+        }
+
         if (this.simpleToken.document.hidden === true) {
             if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
                 return false;

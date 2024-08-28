@@ -10,7 +10,7 @@ export class AuraRingFlags
     static getAuraRings(simpleTokenDocument)
     {
         if (AuraRingFlags.hasAuraRings(simpleTokenDocument) === false) {
-            return [];
+            AuraRingFlags.setAuraRings(simpleTokenDocument, []);
         }
 
         return simpleTokenDocument.getFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey);
