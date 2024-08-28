@@ -58,8 +58,6 @@ Press the "Delete Aura Ring" button to remove the currently selected aura ring.
 
 You can control which user roles can see an aura ring using the "Visible to" setting.
 
-Aura rings can also be hidden by setting the radius to zero, the visibility to "NONE", or the opacity of stroke and fill to 0.
-
 ### Angled aura rings
 
 You can adjust the "Direction" and "Angle" settings to create arcs instead of circles.
