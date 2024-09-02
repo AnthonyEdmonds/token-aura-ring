@@ -76,6 +76,27 @@ When you rotate the token the arc will rotate with it.
 
 Setting the "Angle" to "360" will draw a complete circle.
 
+## API
+
+Module developers can control Aura Rings using the `AuraRingApi` class.
+
+| Function  | Parameters                           | Returns          | Description |
+| --------- | ------------------------------------ | ---------------- | ----------- |
+| all       | SimpleTokenDocument                  | Array[AuraRing]  | Retrieve all Aura Rings |
+| blank     |                                      | AuraRing         | Get an unsaved empty Aura Ring without an ID |
+| delete    | SimpleTokenDocument, id              |                  | Remove an Aura Ring |
+| deleteAll | SimpleTokenDocument                  |                  | Remove all Aura Rings |
+| get       | SimpleTokenDocument, id              | AuraRing|false   | Retrieve a specific Aura Ring |
+| index     | SimpleTokenDocument                  | Object{id: name} | Retrieve a list of Aura Ring names keyed by their ID |
+| new       | SimpleTokenDocument                  | AuraRing         | Create a new Aura Ring from the default settings |
+| set       | SimpleTokenDocument, AuraRing        |                  | Overwrite an Aura Ring with new settings |
+| setAll    | SimpleTokenDocument, Array[AuraRing] |                  | Overwrite all Aura Rings with a new set |
+| setValue  | simpleTokenDocument, id, key, value  |                  | Update a specific Aura Ring value directly |
+
+All changes will trigger flag updates on the SimpleTokenDocument, and can be edited in the normal UI.
+
+It is left up to the module developer to ensure that any set Aura Rings are valid.
+
 ## Issues
 
 This module may not work with game systems or addons which already implement their own token auras.
