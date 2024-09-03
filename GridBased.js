@@ -1,93 +1,175 @@
 // TODO Normalise radius to nearest round value
 export class GridBased
 {
-    static draw(canvas, auraRing, originX, originY, tokenRotation, tokenWidth)
+    static draw(canvas, auraRing, tokenOffsetX, tokenOffsetY, tokenRotation, tokenWidth)
     {
+        const gridDistance = game.canvas.grid.distance;
+        let radius = auraRing.radius + ((tokenWidth - 1) * gridDistance);
+        radius = Math.round(radius / gridDistance) * gridDistance;
+
         auraRing.angle === 360
-            ? GridBased.circle(canvas, auraRing, originX, originY)
-            : GridBased.cone(canvas, auraRing, originX, originY, tokenRotation, tokenWidth);
+            ? GridBased.circle(canvas, tokenOffsetX, tokenOffsetY, radius, tokenWidth)
+            : GridBased.cone(canvas, auraRing, tokenOffsetX, tokenOffsetY, radius, tokenRotation, tokenWidth);
     }
 
-    static circle(canvas, auraRing, originX, originY)
+    static circle(canvas, tokenOffsetX, tokenOffsetY, radius)
     {
-        let centres = game.canvas.grid.getCircle({x: 0, y: 0}, auraRing.radius);
-        
-        centres = GridBased.offsetGridShapeCentres(centres, originX, originY);
-        GridBased.drawGridShapeFromCentres(centres);
+        let points = game.canvas.grid.getCircle({x: 0, y: 0}, radius);
+
+        points = GridBased.addCorners(points);
+        GridBased.centralise(points, tokenOffsetX, tokenOffsetY);
+        GridBased.drawFromPoints(canvas, points);
 
         canvas.closePath();
     }
 
-    static cone(canvas, auraRing, originX, originY, tokenRotation, tokenWidth)
+    static cone(canvas, auraRing, tokenOffsetX, tokenOffsetY, radius, tokenRotation, tokenWidth)
     {
         const direction = -90 + auraRing.direction + tokenRotation;
-        let centres = game.canvas.grid.getCone({x: 0, y: 0}, auraRing.radius, direction, auraRing.angle + 1);
-        centres.shift();
 
-        centres = GridBased.removeMisalignedGridChapeCentres(centres);
-        GridBased.completeGridConePath(centres, originX, originY);
-        GridBased.offsetGridShapeCentres(centres, originX, originY, tokenWidth);
-        GridBased.debugDraw(canvas, centres);
+        let points = game.canvas.grid.getCone({x: 0, y: 0}, radius, direction, auraRing.angle + 1);
+        points.push({x: 0, y:0});
 
-        canvas.moveTo(originX, originY);
-        GridBased.drawGridShapeFromCentres(centres);
+        //points = GridBased.align(points);
+        points = GridBased.addConeEnds(points);
+        //points = GridBased.addCorners(points); -- Need to add path points first
+        GridBased.centralise(points, tokenOffsetX, tokenOffsetY);
+        GridBased.debugDraw(canvas, points);
+        GridBased.drawFromPoints(canvas, points);
+
         canvas.closePath();
     }
 
-    // Add tolerance to grid cell culling
-    static removeMisalignedGridChapeCentres(centres)
+    static addCorners(points)
+    {
+        const newPoints = [];
+        let previousPoint = points[0];
+
+        for (const index in points) {
+            const point = points[index];
+            
+            if (
+                point.y !== previousPoint.y
+                && point.x !== previousPoint.x
+            ) {
+                const horizontal = point.x - previousPoint.x > 0 === point.y - previousPoint.y > 0;
+
+                newPoints.push({
+                    x: horizontal === true
+                        ? point.x
+                        : previousPoint.x,
+                    y: horizontal === true
+                        ? previousPoint.y
+                        : point.y,
+                });
+            }
+
+            newPoints.push(point);
+            previousPoint = point;
+        }
+
+        return newPoints;
+    }
+
+    static addConeEnds(points)
+    {
+        const pointsToArc = GridBased.addConeEnd(points[1]);
+        points.splice(1, 0, ...pointsToArc.reverse());
+
+        const pointsToCentre = GridBased.addConeEnd(points.slice(-2)[0]);
+        points.splice(-1, 0, ...pointsToCentre);
+
+        return points;
+    }
+
+    static addConeEnd(point)
+    {
+        const points = [];
+        const pointX = Math.abs(point.x);
+        const pointY = Math.abs(point.y);
+        const gridSize = game.canvas.grid.size;
+
+        const horizontalSteps = pointX / gridSize;
+        const verticalSteps = pointY / gridSize;
+
+        const steps = horizontalSteps + verticalSteps;
+
+        const horiztonalInterval = Math.ceil(steps / horizontalSteps);
+        const verticalInterval = Math.ceil(steps / verticalSteps);
+
+        const offsetX = point.x < 0
+            ? gridSize
+            : -gridSize;
+
+        const offsetY = point.y < 0
+            ? gridSize
+            : -gridSize;
+
+        let currentX = point.x;
+        let currentY = point.y;
+
+        for(let step = 1; step <= steps; step++) {
+            if (step % horiztonalInterval === 0) {
+                currentX += offsetX;
+            }
+
+            if (step % verticalInterval === 0) {
+                currentY += offsetY;
+            }
+            
+            points.push({
+                x: currentX,
+                y: currentY,
+            });
+        }
+
+        /*
+        console.warn({
+            pointX: pointX,
+            pointY: pointY,
+            horizontalSteps: horizontalSteps,
+            verticalSteps: verticalSteps,
+            steps: steps,
+            horiztonalInterval: horiztonalInterval,
+            verticalInterval: verticalInterval,
+        });
+        */
+
+        return points;
+    }
+
+    // Need to add flexibility for when it covers centre of square.
+    static align(points)
     {
         const gridSpacing = game.canvas.grid.size / 2;
 
-        return centres.filter(function (centre) {
-            return centre.x % gridSpacing === 0
-                && centre.y % gridSpacing === 0
+        return points.filter(function (point) {
+            return point.x % gridSpacing === 0
+                && point.y % gridSpacing === 0
         });
     }
 
-    static offsetGridShapeCentres(centres, originX, originY, tokenWidth)
+    static centralise(points, tokenOffsetX, tokenOffsetY)
     {
-        const gridSpacing = game.canvas.grid.size / 2;
-        const gridOffset = (tokenWidth - 1) * gridSpacing;
-
-        for (const centre of centres) {
-            if (centre.x !== 0) {
-                centre.x < 0
-                    ? centre.x -= gridOffset
-                    : centre.x += gridOffset;
-            }
-
-            if (centre.y !== 0) {
-                centre.y < 0
-                    ? centre.y -= gridOffset
-                    : centre.y += gridOffset;
-            }
-
-            centre.x += originX;
-            centre.y += originY;
+        for (const point of points) {
+            point.x += tokenOffsetX;
+            point.y += tokenOffsetY;
         }
     }
 
-    // Does not handle rotation at all
-    // Sides are messed up on narrow, base on wide
-    // Look at extending the measured template tool
+    static drawFromPoints(canvas, points)
+    {
+        for (const point of points) {
+            canvas.lineTo(point.x, point.y);
+        }
+    }
+
+    
+
+    /* --- Legacy --- */
     static completeGridConePath(centres)
     {
-        if (centres.length < 1) {
-            return centres;
-        }
-
-        const start = centres[0];
-        const end = centres.slice(-1)[0];
         const vertical = start.x === end.x;
-
-        const startPath = GridBased.completeGridConeSection(start, vertical);
-        centres.splice(0, 0, ...startPath.reverse());
-        
-        const endPath = GridBased.completeGridConeSection(end, vertical);
-        centres.push(...endPath)
-
-        return centres;
     }
 
     static completeGridConeSection(centre, vertical) 
@@ -121,59 +203,20 @@ export class GridBased
         return newCentres;
     }
 
-    static debugDraw(canvas, centres)
+    static debugDraw(canvas, points)
     {
         let current = 5;
-        for (const centre of centres) {
-            canvas.drawCircle(centre.x, centre.y, current);
+        for (const point of points) {
+            canvas.drawCircle(point.x, point.y, current);
             current++;
         }
 
         canvas.startPoly();
         canvas.lineStyle(3, '#000000', 1);
-        for (const centre of centres) {
-            canvas.lineTo(centre.x, centre.y);
+        for (const point of points) {
+            canvas.lineTo(point.x, point.y);
         }
         canvas.lineStyle(0, '#000000', 0, 0);
         canvas.finishPoly();
-    }
-
-    static drawGridShapeFromCentres(canvas, centres)
-    {
-        if (Array.isArray(centres) === false) {
-            return;
-        }
-
-        if (centres.length < 1) {
-            return;
-        }
-
-        const gridOffset = game.canvas.grid.size / 2;
-        let previousCentre = centres[0];
-
-        for (const centre of centres) {
-            if (centre.y !== previousCentre.y && centre.x !== previousCentre.x) {
-                const stepX = centre.y < 0
-                    ? previousCentre.x + gridOffset
-                    : previousCentre.x - gridOffset;
-
-                const stepY = centre.x < 0
-                    ? previousCentre.y - gridOffset
-                    : previousCentre.y + gridOffset;
-
-                canvas.lineTo(stepX, stepY);
-            }
-
-            const centreX = centre.x < 0
-                ? centre.x - gridOffset
-                : centre.x + gridOffset;
-
-            const centreY = centre.y < 0
-                ? centre.y - gridOffset
-                : centre.y + gridOffset;
-
-            canvas.lineTo(centreX, centreY);
-            previousCentre = centre;
-        }
     }
 }
