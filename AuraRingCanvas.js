@@ -211,25 +211,18 @@ export class AuraRingCanvas
     
     drawAuraRing(auraRing, close)
     {
-        const originX = this.simpleToken.w / 2;
-        const originY = this.simpleToken.h / 2;
-
         this.pixiGraphics.startPoly();
 
-        this.useGridShapes(auraRing)
+        this.useGridShapes(auraRing) === true
             ? GridBased.draw(
                 this.pixiGraphics,
-                auraRing, originX,
-                originY,
-                this.simpleToken.document.rotation,
-                this.simpleToken.document.width,
+                auraRing, 
+                this.simpleToken.document,
             )
             : Euclidean.draw(
                 this.pixiGraphics,
                 auraRing,
-                originX,
-                originY,
-                this.simpleToken.document.rotation,
+                this.simpleToken.document,
                 close,
             );
 

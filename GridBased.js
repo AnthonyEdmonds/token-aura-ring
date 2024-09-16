@@ -1,222 +1,271 @@
-// TODO Normalise radius to nearest round value
+import { Point } from "./Point.js";
+
 export class GridBased
 {
-    static draw(canvas, auraRing, tokenOffsetX, tokenOffsetY, tokenRotation, tokenWidth)
+    /**
+     * An XY co-ordinate
+     * @typedef  {Object}   Point
+     * @property {number}   x       The horizontal location of the point
+     * @property {number}   y       The vertical location of the point
+     */
+
+    static draw(canvas, auraRing, simpleTokenDocument)
     {
         const gridDistance = game.canvas.grid.distance;
-        let radius = auraRing.radius + ((tokenWidth - 1) * gridDistance);
-        radius = Math.round(radius / gridDistance) * gridDistance;
+        const gridSize = game.canvas.grid.size;
+        const gridOffset = gridSize / 2;
+
+        let radius = Math.round(auraRing.radius / gridDistance) * gridDistance;
+        const origins = GridBased.originPoints(simpleTokenDocument, gridSize, gridOffset);
 
         auraRing.angle === 360
-            ? GridBased.circle(canvas, tokenOffsetX, tokenOffsetY, radius, tokenWidth)
-            : GridBased.cone(canvas, auraRing, tokenOffsetX, tokenOffsetY, radius, tokenRotation, tokenWidth);
+            ? GridBased.circle(canvas, simpleTokenDocument, origins, radius, gridSize, gridOffset)
+            : GridBased.cone(canvas, radius);
     }
 
-    static circle(canvas, tokenOffsetX, tokenOffsetY, radius)
+    static circle(canvas, simpleTokenDocument, origins, radius, gridSize, gridOffset)
     {
-        let points = game.canvas.grid.getCircle({x: 0, y: 0}, radius);
-
-        points = GridBased.addCorners(points);
-        GridBased.centralise(points, tokenOffsetX, tokenOffsetY);
-        GridBased.drawFromPoints(canvas, points);
-
-        canvas.closePath();
+        GridBased.drawPoints(
+            canvas, 
+            simpleTokenDocument,
+            GridBased.baseCircle(simpleTokenDocument, origins, radius, gridSize, gridOffset),
+            gridOffset,
+        );
     }
 
-    static cone(canvas, auraRing, tokenOffsetX, tokenOffsetY, radius, tokenRotation, tokenWidth)
+    static cone(canvas, radius)
     {
-        const direction = -90 + auraRing.direction + tokenRotation;
-
-        let points = game.canvas.grid.getCone({x: 0, y: 0}, radius, direction, auraRing.angle + 1);
-        points.push({x: 0, y:0});
-
-        //points = GridBased.align(points);
-        points = GridBased.addConeEnds(points);
-        //points = GridBased.addCorners(points); -- Need to add path points first
-        GridBased.centralise(points, tokenOffsetX, tokenOffsetY);
-        GridBased.debugDraw(canvas, points);
-        GridBased.drawFromPoints(canvas, points);
-
-        canvas.closePath();
+        console.warn('Cone');
     }
 
-    static addCorners(points)
+    // Shapes
+
+    /**
+     * Draw a 360 degree circle around a token
+     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {Point[]} origins
+     * @param {number} radius
+     * @returns {Point[]}
+     */
+    static baseCircle(simpleTokenDocument, origins, radius, gridSize, gridOffset)
     {
-        const newPoints = [];
-        let previousPoint = points[0];
+        const min = gridOffset;
+        const maxHeight = ((simpleTokenDocument.height - 1) * gridSize) + gridOffset;
+        const maxWidth = ((simpleTokenDocument.width - 1) * gridSize) + gridOffset;
+        let points = [];
 
-        for (const index in points) {
-            const point = points[index];
-            
-            if (
-                point.y !== previousPoint.y
-                && point.x !== previousPoint.x
-            ) {
-                const horizontal = point.x - previousPoint.x > 0 === point.y - previousPoint.y > 0;
-
-                newPoints.push({
-                    x: horizontal === true
-                        ? point.x
-                        : previousPoint.x,
-                    y: horizontal === true
-                        ? previousPoint.y
-                        : point.y,
-                });
+        for (const origin of origins) {
+            if (origin.x === min && origin.y === min) {
+                points.push(...GridBased.baseCorner(origin, radius, 225));
             }
 
-            newPoints.push(point);
+            if (origin.x === maxWidth && origin.y === min) {
+                points.push(...GridBased.baseCorner(origin, radius, 315));
+            }
+
+            if (origin.x === maxWidth && origin.y === maxHeight) {
+                points.push(...GridBased.baseCorner(origin, radius, 45));
+            }
+
+            if (origin.x == min && origin.y === maxHeight) {
+                points.push(...GridBased.baseCorner(origin, radius, 135));
+            }
+        }
+
+        points = GridBased.removeDuplicatePoints(points);
+        return GridBased.bridgeGaps(points, gridSize);
+    }
+
+    /**
+     * Draw a 90 degree cone on the corner of a token
+     * @param {Point} origin
+     * @param {number} radius
+     * @param {number} direction
+     * @returns {Point[]}
+     */
+    static baseCorner(origin, radius, direction)
+    {
+        const points = [];
+        const corner = game.canvas.grid.getCone(origin, radius, direction, 90);
+        corner.splice(0, 1);
+
+        for (const point of corner) {
+            points.push(new Point(point.x, point.y));
+        }
+
+        return GridBased.removeDuplicatePoints(points);
+    }
+
+    // Points
+
+    /**
+     * Bridge the gaps between points on straights and diagonals
+     * @param {Point[]} points 
+     * @param {number} gridSize 
+     * @returns {Point[]}
+     */
+    static bridgeGaps(points, gridSize)
+    {
+        const bridgedPoints = [];
+        let previousPoint = points[points.length - 1];
+        let differenceX = 0;
+        let differenceY = 0;
+
+        for (const point of points) {
+            do {
+                let bridgeX = previousPoint.x;
+                let bridgeY = previousPoint.y;
+
+                differenceX = Math.abs(point.x - previousPoint.x);
+                differenceY = Math.abs(point.y - previousPoint.y);
+
+                if (differenceX === gridSize && differenceY === gridSize) {
+                    const directionX = previousPoint.x < point.x;
+                    const directionY = previousPoint.y < point.y;
+
+                    if (directionX === directionY) {
+                        bridgeY += directionY === true ? gridSize : -gridSize;
+                    } else {
+                        bridgeX += directionX === true ? gridSize : -gridSize;
+                    }
+
+                } else if (differenceX > gridSize && differenceY <= gridSize) {
+                    bridgeX += previousPoint.x < point.x ? gridSize : -gridSize;
+                } else if (differenceX <= gridSize && differenceY > gridSize) {
+                    bridgeY += previousPoint.y < point.y ? gridSize : -gridSize;
+                } else {
+                    break;
+                }
+
+                const newPoint = new Point(bridgeX, bridgeY);
+                bridgedPoints.push(newPoint);
+                previousPoint = newPoint;
+            } while (differenceX > gridSize || differenceY > gridSize);
+
+            bridgedPoints.push(point);
             previousPoint = point;
         }
 
-        return newPoints;
+        return bridgedPoints;
     }
 
-    static addConeEnds(points)
+    /**
+     * Draw points onto the canvas
+     * @param {PIXI.Graphics} canvas
+     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {Point[]} points
+     * @param {number} gridOffset
+     */
+    static drawPoints(canvas, simpleTokenDocument, points, gridOffset)
     {
-        const pointsToArc = GridBased.addConeEnd(points[1]);
-        points.splice(1, 0, ...pointsToArc.reverse());
+        const originX = simpleTokenDocument.object.w / 2;
+        const originY = simpleTokenDocument.object.h / 2;
+        let first = true;
 
-        const pointsToCentre = GridBased.addConeEnd(points.slice(-2)[0]);
-        points.splice(-1, 0, ...pointsToCentre);
-
-        return points;
-    }
-
-    static addConeEnd(point)
-    {
-        const points = [];
-        const pointX = Math.abs(point.x);
-        const pointY = Math.abs(point.y);
-        const gridSize = game.canvas.grid.size;
-
-        const horizontalSteps = pointX / gridSize;
-        const verticalSteps = pointY / gridSize;
-
-        const steps = horizontalSteps + verticalSteps;
-
-        const horiztonalInterval = Math.ceil(steps / horizontalSteps);
-        const verticalInterval = Math.ceil(steps / verticalSteps);
-
-        const offsetX = point.x < 0
-            ? gridSize
-            : -gridSize;
-
-        const offsetY = point.y < 0
-            ? gridSize
-            : -gridSize;
-
-        let currentX = point.x;
-        let currentY = point.y;
-
-        for(let step = 1; step <= steps; step++) {
-            if (step % horiztonalInterval === 0) {
-                currentX += offsetX;
-            }
-
-            if (step % verticalInterval === 0) {
-                currentY += offsetY;
-            }
-            
-            points.push({
-                x: currentX,
-                y: currentY,
-            });
-        }
-
-        /*
-        console.warn({
-            pointX: pointX,
-            pointY: pointY,
-            horizontalSteps: horizontalSteps,
-            verticalSteps: verticalSteps,
-            steps: steps,
-            horiztonalInterval: horiztonalInterval,
-            verticalInterval: verticalInterval,
-        });
-        */
-
-        return points;
-    }
-
-    // Need to add flexibility for when it covers centre of square.
-    static align(points)
-    {
-        const gridSpacing = game.canvas.grid.size / 2;
-
-        return points.filter(function (point) {
-            return point.x % gridSpacing === 0
-                && point.y % gridSpacing === 0
-        });
-    }
-
-    static centralise(points, tokenOffsetX, tokenOffsetY)
-    {
         for (const point of points) {
-            point.x += tokenOffsetX;
-            point.y += tokenOffsetY;
-        }
-    }
+            point.x += point.x <= originX
+                ? -gridOffset
+                : gridOffset;
 
-    static drawFromPoints(canvas, points)
-    {
-        for (const point of points) {
-            canvas.lineTo(point.x, point.y);
-        }
-    }
+            point.y += point.y <= originY
+                ? -gridOffset
+                : gridOffset;
 
-    
-
-    /* --- Legacy --- */
-    static completeGridConePath(centres)
-    {
-        const vertical = start.x === end.x;
-    }
-
-    static completeGridConeSection(centre, vertical) 
-    {
-        const newCentres = [];
-        const gridSize = game.canvas.grid.size;
-
-        let steps = (Math.abs(centre.x) + Math.abs(centre.y)) / gridSize;
-        let currentX = centre.x;
-        let currentY = centre.y;
-
-        for (steps; steps > 0; steps--) {
-            if (vertical === true) {
-                currentY < 0
-                    ? currentY += gridSize
-                    : currentY -= gridSize;
+            if (first === true) {
+                canvas.moveTo(point.x, point.y);
+                first = false;
             } else {
-                currentX < 0
-                    ? currentX += gridSize
-                    : currentX -= gridSize;
+                canvas.lineTo(point.x, point.y);
             }
-
-            newCentres.push({
-                x: currentX,
-                y: currentY,
-            });
-
-            vertical = !vertical;
         }
 
-        return newCentres;
+        canvas.closePath();
     }
 
-    static debugDraw(canvas, points)
+    /**
+     * Get all token origin points to measure from
+     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {number} gridSize
+     * @param {number} gridOffset
+     * @returns {Point[]}
+     */
+    static originPoints(simpleTokenDocument, gridSize, gridOffset)
+    {
+        const tokenHeight = simpleTokenDocument.height;
+        const tokenWidth = simpleTokenDocument.width;
+        const originPoints = [];
+        let currentX = 0;
+        let currentY = 0;
+
+        for (currentX = 0; currentX < tokenWidth; currentX++) {
+            originPoints.push(new Point(
+                (gridSize * currentX) + gridOffset,
+                (gridSize * currentY) + gridOffset,
+            ));
+        }
+
+        currentX--;
+        for (currentY = 1; currentY < tokenHeight; currentY++) {
+            originPoints.push(new Point(
+                (gridSize * currentX) + gridOffset,
+                (gridSize * currentY) + gridOffset,
+            ));
+        }
+
+        currentX--;
+        currentY--;
+        for (currentX; currentX > 0; currentX--) {
+            originPoints.push(new Point(
+                (gridSize * currentX) + gridOffset,
+                (gridSize * currentY) + gridOffset,
+            ));
+        }
+
+        for (currentY; currentY > 0; currentY--) {
+            originPoints.push(new Point(
+                (gridSize * currentX) + gridOffset,
+                (gridSize * currentY) + gridOffset,
+            ));
+        }
+
+        return originPoints;
+    }
+
+    /**
+     * Remove duplicated sequential points
+     * @param {Point[]} points
+     * @returns {Point[]}
+     */
+    static removeDuplicatePoints(points)
+    {
+        const uniquePoints = [];
+        let previousPoint = points[points.length - 1]
+
+        for (const point of points) {
+            if (point.x !== previousPoint.x || point.y !== previousPoint.y) {
+                uniquePoints.push(point);
+                previousPoint = point;
+            } 
+        }
+
+        return uniquePoints;
+    }
+    
+    // Debug
+
+    static debugDrawPoints(canvas, points, strokeColour = '#ff0000', fillColour = '#00ff00')
     {
         let current = 5;
-        for (const point of points) {
-            canvas.drawCircle(point.x, point.y, current);
-            current++;
+
+        canvas.lineStyle(3, strokeColour, 1, 0.5);
+        for (let point of points) {
+            canvas.lineTo(point);
         }
 
-        canvas.startPoly();
-        canvas.lineStyle(3, '#000000', 1);
-        for (const point of points) {
-            canvas.lineTo(point.x, point.y);
+        canvas.lineStyle(3, fillColour, 1, 0.5);
+        for (let point of points) {
+            canvas.drawCircle(point.x, point.y, current);
+            current+=0.5;
         }
-        canvas.lineStyle(0, '#000000', 0, 0);
-        canvas.finishPoly();
     }
 }

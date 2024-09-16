@@ -61,7 +61,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             stroke_colour: '#ff0000',
             stroke_opacity: 0.75,
             stroke_weight: 4,
-            use_grid_shapes: true,
+            use_grid_shapes: false,
             visibility: 'PLAYER',
         };
     }

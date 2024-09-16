@@ -76,6 +76,10 @@ When you rotate the token the arc will rotate with it.
 
 Setting the "Angle" to "360" will draw a complete circle.
 
+### Grid based aura rings
+
+Checking the "Use grid-based shapes" option will turn the aura from a circle to a grid-based template.
+
 ## API
 
 Module developers can control Aura Rings using the `AuraRingApi` class.
