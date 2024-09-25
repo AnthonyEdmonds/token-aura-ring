@@ -1,14 +1,14 @@
+import { Euclidean } from "./Euclidean.js";
 import { Point } from "./Point.js";
 
 export class GridBased
 {
     /**
-     * An XY co-ordinate
-     * @typedef  {Object}   Point
-     * @property {number}   x       The horizontal location of the point
-     * @property {number}   y       The vertical location of the point
+     * Draw a grid-based Aura Ring
+     * @param {PIXI.Graphics} canvas 
+     * @param {AuraRing} auraRing 
+     * @param {SimpleTokenDocument} simpleTokenDocument 
      */
-
     static draw(canvas, auraRing, simpleTokenDocument)
     {
         const gridDistance = game.canvas.grid.distance;
@@ -20,9 +20,18 @@ export class GridBased
 
         auraRing.angle === 360
             ? GridBased.circle(canvas, simpleTokenDocument, origins, radius, gridSize, gridOffset)
-            : GridBased.cone(canvas, radius);
+            : GridBased.cone(canvas, simpleTokenDocument, origins, radius, auraRing.angle, auraRing.direction, simpleTokenDocument.rotation, gridSize, gridOffset);
     }
 
+    /**
+     * Draw a circular grid-based Aura Ring
+     * @param {PIXI.Graphics} canvas 
+     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {Point[]} origins 
+     * @param {number} radius 
+     * @param {number} gridSize 
+     * @param {number} gridOffset 
+     */
     static circle(canvas, simpleTokenDocument, origins, radius, gridSize, gridOffset)
     {
         GridBased.drawPoints(
@@ -33,9 +42,167 @@ export class GridBased
         );
     }
 
-    static cone(canvas, radius)
+
+
+
+    /**
+     * Get the Points needed to connect one point to another
+     * @param {Point} origin 
+     * @param {Point} target
+     * @param {number} gridSize
+     */
+    static connectEnd(origin, target, gridSize, canvas)
     {
-        console.warn('Cone');
+
+        // Determine angle
+        // If 45, step diagonal, if > 45, X/Y (based on orientation), if < 45 X/Y (based on orientation)
+        // Experiment with next point - does angle exceed, match, etc?
+        // Keep going until next step is at target
+
+        console.warn(
+            origin.angleTo(target),
+        );
+
+
+
+
+
+
+
+        const points = [];
+
+        const stepsX = origin.distanceX(target) / gridSize;
+        const stepsY = origin.distanceY(target) / gridSize;
+        const steps = stepsX + stepsY;
+
+        const intervalX = Math.ceil(stepsX / steps);
+        const intervalY = Math.ceil( stepsY / steps);
+
+        let currentStep = 0;
+        let currentX = origin.x;
+        let currentY = origin.y;
+
+        while (currentStep < steps) {
+            if (
+                currentX !== target.x
+                && currentStep % intervalX === 0
+            ) {
+                currentX -= gridSize;
+                currentStep++;
+            }
+                
+            if (
+                currentY !== target.y
+                && currentStep % intervalY === 0
+            ) {
+                currentY += gridSize;
+                currentStep++;
+            }
+
+            points.push(
+                new Point(currentX, currentY),
+            );
+        }
+
+        return points;
+    }
+
+
+
+
+
+
+    /**
+     * Draw a conical grid-based Aura Ring
+     * @param {PIXI.Graphics} canvas 
+     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {Point[]} origins 
+     * @param {number} radius 
+     * @param {number} angle 
+     * @param {number} direction 
+     * @param {number} rotation 
+     * @param {number} gridSize 
+     * @param {number} gridOffset 
+     */
+    static cone(canvas, simpleTokenDocument, origins, radius, angle, direction, rotation, gridSize, gridOffset)
+    {
+        const origin = new Point(
+            (simpleTokenDocument.width * gridSize) / 2, 
+            (simpleTokenDocument.height * gridSize) / 2
+        );
+
+        const circle = GridBased.baseCircle(simpleTokenDocument, origins, radius, gridSize, gridOffset);
+        const pixelRadius = Euclidean.pixelRadius(radius, origin);
+        const arcPoints = Euclidean.arcPoints(origin, pixelRadius, angle, direction, rotation);
+
+        const closestCircleToStart = GridBased.getClosestPointTo(origin,  arcPoints.start, circle, false);
+        const closestCircleToEnd = GridBased.getClosestPointTo(origin,  arcPoints.end, circle, true);
+        const closestOriginToStart = GridBased.getClosestPointTo(origin, arcPoints.start, origins, false);
+        const closestOriginToEnd = GridBased.getClosestPointTo(origin, arcPoints.end, origins, true);
+
+        const cone = GridBased.removePointsBetween(circle, closestCircleToEnd, closestCircleToStart);
+        cone.unshift(
+            ...GridBased.connectEnd(closestOriginToStart, closestCircleToStart, gridSize, canvas),
+        );
+
+        /*
+         * Connect points to bridge gap, filling points inward rather than outward
+         * Draw
+         */
+
+        // NODE Points
+        GridBased.debugDrawPoints(canvas, origins, '#999999', '#555555');
+        GridBased.debugDrawPoints(canvas, cone, '#ff0000', '#ff5555');
+
+        // START Point
+        canvas.startPoly();
+        canvas.lineStyle(5, '#55ff55');
+        canvas.moveTo(closestOriginToStart.x, closestOriginToStart.y);
+        canvas.lineTo(closestCircleToStart.x, closestCircleToStart.y);
+        canvas.finishPoly();
+
+        canvas.startPoly();
+        canvas.lineStyle(5, '#333333');
+        canvas.moveTo(closestOriginToStart.x, closestOriginToStart.y);
+        canvas.lineTo(arcPoints.start.x, arcPoints.start.y);
+        canvas.finishPoly();
+
+        GridBased.debugDrawPoints(canvas,  [
+            origin,
+            arcPoints.start,
+            closestOriginToStart,
+        ], '#00ff00', '#55ff55');
+
+        GridBased.debugDrawPoints(canvas,  [
+            origin,
+            arcPoints.end,
+            closestOriginToEnd,
+        ], '#40e0d0', '#40e0d0');
+
+        // END Point
+        canvas.startPoly();
+        canvas.lineStyle(5, '#55ff55');
+        canvas.moveTo(closestOriginToEnd.x, closestOriginToEnd.y);
+        canvas.lineTo(closestCircleToEnd.x, closestCircleToEnd.y);
+        canvas.finishPoly();
+
+        canvas.startPoly();
+        canvas.lineStyle(5, '#333333');
+        canvas.moveTo(closestOriginToEnd.x, closestOriginToEnd.y);
+        canvas.lineTo(arcPoints.end.x, arcPoints.end.y);
+        canvas.finishPoly();
+
+        GridBased.debugDrawPoints(canvas,  [
+            origin,
+            arcPoints.start,
+            closestCircleToStart,
+        ], '#00ff00', '#55ff55');
+
+        GridBased.debugDrawPoints(canvas,  [
+            origin,
+            arcPoints.end,
+            closestCircleToEnd,
+        ], '#40e0d0', '#40e0d0');
     }
 
     // Shapes
@@ -45,6 +212,8 @@ export class GridBased
      * @param {SimpleTokenDocument} simpleTokenDocument
      * @param {Point[]} origins
      * @param {number} radius
+     * @param {number} gridSize
+     * @param {number} gridOffset
      * @returns {Point[]}
      */
     static baseCircle(simpleTokenDocument, origins, radius, gridSize, gridOffset)
@@ -183,6 +352,60 @@ export class GridBased
     }
 
     /**
+     * Find a Point which is closest to a given target angle based on an origin
+     * @param {Point} origin
+     * @param {Point} target
+     * @param {Point[]} points
+     * @param {boolean} clockwise
+     * @returns {Point} The Point closest to the target angle
+     */
+    static getClosestPointTo(origin, target, points, clockwise = true)
+    {
+        if (points.length === 1) {
+            return points[0];
+        }
+
+        const targetDistance = origin.distanceTo(target);
+        let targetAngle = origin.angleTo(target);
+        let closestPoint = points[0];
+        let closestAngle = clockwise === true ? -181 : 181;
+
+        targetAngle = targetAngle < 0
+            ? ((targetAngle - 360) % 360) + 360
+            : targetAngle % 360;
+
+        for (const point of points) {
+            const pointDistance = origin.distanceTo(point);
+
+            if (pointDistance > targetDistance) {
+                continue;
+            }
+
+            const pointAngle = origin.angleTo(point, targetAngle, true);
+
+            if (clockwise === true) {
+                if (
+                    pointAngle <= 0
+                    && pointAngle > closestAngle
+                ) {
+                    closestAngle = pointAngle;
+                    closestPoint = point;
+                }
+            } else {
+                if (
+                    pointAngle >= 0
+                    && pointAngle < closestAngle
+                ) {
+                    closestAngle = pointAngle;
+                    closestPoint = point;
+                }
+            }
+        };
+
+        return closestPoint;
+    }
+
+    /**
      * Get all token origin points to measure from
      * @param {SimpleTokenDocument} simpleTokenDocument
      * @param {number} gridSize
@@ -250,7 +473,67 @@ export class GridBased
 
         return uniquePoints;
     }
-    
+
+    /**
+     * Remove Points which sit between a start and an end Point
+     * @param {Point[]} points 
+     * @param {Point} start 
+     * @param {Point} end
+     * @returns {Point[]}
+     */
+    static removePointsBetween(points, start, end)
+    {
+        let adjusted = [];
+        let startIndex = null;
+        let endIndex = null;
+        let inverse = false;
+
+        for (const index in points) {
+            const point = points[index];
+
+            if (
+                startIndex === null
+                && point.matches(start) === true
+            ) {
+                startIndex = parseInt(index);
+            }
+
+            if (
+                endIndex === null
+                && point.matches(end) === true
+            ) {
+                endIndex = parseInt(index);
+            }
+
+            if (startIndex !== null && endIndex !== null) {
+                break;
+            }
+        }
+
+        if (startIndex > endIndex) {
+            let swap = startIndex;
+            inverse = true;
+            startIndex = endIndex;
+            endIndex = swap;
+        }
+
+        for (const index in points) {
+            if (inverse === true) {
+                if (index < startIndex || index > endIndex) {
+                    continue;
+                }
+            } else {
+                if (index > startIndex && index < endIndex) {
+                    continue;
+                }
+            }
+
+            adjusted.push(points[index]);
+        }
+
+        return adjusted;
+    }
+
     // Debug
 
     static debugDrawPoints(canvas, points, strokeColour = '#ff0000', fillColour = '#00ff00')
