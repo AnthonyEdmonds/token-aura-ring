@@ -2,8 +2,6 @@ import { AuraRingFlags } from "./AuraRingFlags.js";
 import { Euclidean } from "./Euclidean.js";
 import { GridBased } from "./GridBased.js";
 
-// Add bypass grid template option
-
 export class AuraRingCanvas
 {
     static key = 'tokenAuraRing';
@@ -246,7 +244,7 @@ export class AuraRingCanvas
     
     shouldRender(auraRing)
     {
-        if (auraRing.radius < 1) {
+        if (auraRing.radius === 0) {
             return false;
         }
         
@@ -272,8 +270,8 @@ export class AuraRingCanvas
     auraOpacity(opacity)
     {
         return this.simpleToken.document.hidden === true
-        ? opacity / 2
-        : opacity;
+            ? opacity / 2
+            : opacity;
     }
     
     hasFill(auraRing)

@@ -12,6 +12,8 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 ![How token aura rings appear to players](images/player.jpg)
 
+Creatures larger than 1 tile will have flattened sides to correctly represent their aura range.
+
 Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
 Hidden tokens will only show their aura rings to the game master.
@@ -78,7 +80,19 @@ Setting the "Angle" to "360" will draw a complete circle.
 
 ### Grid based aura rings
 
-Checking the "Use grid-based shapes" option will turn the aura from a circle to a grid-based template.
+Checking the "Use grid-based shapes" option will turn the aura ring from euclidean to grid-based, if the current scene has a grid enabled.
+
+Hex grids are not currently supported in this mode.
+
+### Negative radius
+
+You may set the radius of an aura ring to a negative value to draw within the token's bounds.
+
+![An example of a token with a negative radius](images/negative-radius.jpg)
+
+This will only work with tokens which feauture transparency, and is limited by the overall size of the token.
+
+For example, a standard medium creature (1 square = 5 foot) can have a minimum radius of -2.49 feet.
 
 ## API
 

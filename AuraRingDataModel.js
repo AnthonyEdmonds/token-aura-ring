@@ -267,9 +267,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             ),
             AuraRingField.numberFieldParams(
                 null,
-                null,
-                null,
-                false,
             ),
         );
     }

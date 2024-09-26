@@ -50,58 +50,127 @@ export class GridBased
      * @param {Point} origin 
      * @param {Point} target
      * @param {number} gridSize
+     * @param {boolean} clockwise
+     * @returns {Point[]}
      */
-    static connectEnd(origin, target, gridSize, canvas)
+    static connectEnd(origin, target, gridSize, clockwise)
     {
-
-        // Determine angle
-        // If 45, step diagonal, if > 45, X/Y (based on orientation), if < 45 X/Y (based on orientation)
-        // Experiment with next point - does angle exceed, match, etc?
-        // Keep going until next step is at target
-
-        console.warn(
-            origin.angleTo(target),
+        const points = [];
+        const targetDistance = Point.distanceBetween(
+            target, 
+            new Point(target.x - gridSize, target.y - gridSize),
         );
 
+        let angle = 0;
+        let currentPoint = origin;
+        let distance = origin.distanceTo(target);
 
+        gridSize = gridSize;
 
+        while (distance > targetDistance) {
+            const point = new Point(currentPoint.x, currentPoint.y);
+            angle = currentPoint.angleTo(target);
 
+            if (clockwise === true) {
+                switch (true) {
+                    case angle === 0:
+                    case angle === 360:
+                    case angle > 0 && angle < 45:
+                        point.x += gridSize;
+                        break;
 
+                    case angle === 45:
+                    case angle > 45 && angle < 90:
+                        point.x += gridSize;
+                        point.y += gridSize;
+                        break;
 
+                    case angle === 90:
+                    case angle > 90 && angle < 135:
+                        point.y += gridSize;
+                        break;
 
-        const points = [];
+                    case angle === 135:
+                    case angle > 135 && angle < 180:
+                        point.x -= gridSize;
+                        point.y += gridSize;
+                        break;
 
-        const stepsX = origin.distanceX(target) / gridSize;
-        const stepsY = origin.distanceY(target) / gridSize;
-        const steps = stepsX + stepsY;
+                    case angle === 180:
+                    case angle > 180 && angle < 225:
+                        point.x -= gridSize;
+                        break;
 
-        const intervalX = Math.ceil(stepsX / steps);
-        const intervalY = Math.ceil( stepsY / steps);
+                    case angle === 225:
+                    case angle > 225 && angle < 270:
+                        point.x -= gridSize;
+                        point.y -= gridSize;
+                        break;
 
-        let currentStep = 0;
-        let currentX = origin.x;
-        let currentY = origin.y;
+                    case angle === 270:
+                    case angle > 270 && angle < 315:
+                        point.y -= gridSize;
+                        break;
 
-        while (currentStep < steps) {
-            if (
-                currentX !== target.x
-                && currentStep % intervalX === 0
-            ) {
-                currentX -= gridSize;
-                currentStep++;
+                    case angle === 315:
+                    case angle > 315 && angle < 360:
+                        point.x += gridSize;
+                        point.y -= gridSize;
+                        break; 
+                }
+            } else {
+                switch (true) {
+                    case angle === 0:
+                    case angle === 360:
+                    case angle < 360 && angle > 315:
+                        point.x += gridSize;
+                        break;
+
+                    case angle === 315:
+                    case angle < 315 && angle > 270:
+                        point.x += gridSize;
+                        point.y -= gridSize;
+                        break;
+
+                    case angle === 270:
+                    case angle < 270 && angle > 225:
+                        point.y -= gridSize;
+                        break;
+
+                    case angle === 225:
+                    case angle < 225 && angle > 180:
+                        point.x -= gridSize;
+                        point.y -= gridSize;
+                        break;
+
+                    case angle === 180:
+                    case angle < 180 && angle > 135:
+                        point.x -= gridSize;
+                        break;
+
+                    case angle === 135:
+                    case angle < 135 && angle > 90:
+                        point.x -= gridSize;
+                        point.y += gridSize;
+                        break;
+
+                    case angle === 90:
+                    case angle < 90 && angle > 45:
+                        point.y += gridSize;
+                        break;
+
+                    case angle === 45:
+                    case angle < 45 && angle > 0:
+                        point.x += gridSize;
+                        point.y += gridSize;
+                        break;
+                }
             }
-                
-            if (
-                currentY !== target.y
-                && currentStep % intervalY === 0
-            ) {
-                currentY += gridSize;
-                currentStep++;
-            }
 
-            points.push(
-                new Point(currentX, currentY),
-            );
+            points.push(point);
+
+            currentPoint = point;
+            distance = currentPoint.distanceTo(target);
         }
 
         return points;
@@ -142,11 +211,13 @@ export class GridBased
 
         const cone = GridBased.removePointsBetween(circle, closestCircleToEnd, closestCircleToStart);
         cone.unshift(
-            ...GridBased.connectEnd(closestOriginToStart, closestCircleToStart, gridSize, canvas),
+            ...GridBased.connectEnd(closestOriginToStart, closestCircleToStart, gridSize, false),
+        );
+        cone.push(
+            ...GridBased.connectEnd(closestOriginToEnd, closestCircleToEnd, gridSize, true),
         );
 
         /*
-         * Connect points to bridge gap, filling points inward rather than outward
          * Draw
          */
 
@@ -530,6 +601,8 @@ export class GridBased
 
             adjusted.push(points[index]);
         }
+
+        // TODO Adjust so that startindex is the start of the array
 
         return adjusted;
     }
