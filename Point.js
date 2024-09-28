@@ -1,5 +1,11 @@
 export class Point
 {
+    /** @type {boolean} */
+    clockwise = true;
+
+    /** @type {boolean} */
+    invert = false;
+
     /** @type {number} */
     #x = 0;
 
@@ -10,9 +16,16 @@ export class Point
      * Create a new Point
      * @param {number|float} x
      * @param {number|float} y
+     * @param {boolean} invert
      */
-    constructor(x = 0, y = 0)
-    {
+    constructor(
+        x = 0,
+        y = 0,
+        invert = false,
+        clockwise = true,
+    ) {
+        this.clockwise = clockwise;
+        this.invert = invert;
         this.x = x;
         this.y = y;
     }
