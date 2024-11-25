@@ -48,5 +48,5 @@ Hooks.on('initializeVisionSources', function () {
  * Add the AuraRingApi to the window
  */
 Hooks.on('init', function () {
-    foundry.tokenAuraRing = AuraRingApi;
+    globalThis.TokenAuraRing = AuraRingApi;
 });
