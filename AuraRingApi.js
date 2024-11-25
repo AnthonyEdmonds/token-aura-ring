@@ -97,7 +97,7 @@ export class AuraRingApi
     static getAuraRing(auraRings, term, field = 'id')
     {
         for (const auraRing of auraRings) {
-            if (auraRing[field] === term) {
+            if (auraRing[field] == term) {
                 return auraRing;
             }
         }
@@ -116,7 +116,7 @@ export class AuraRingApi
     static getAuraRingIndex(auraRings, term, field = 'id')
     {
         for (let index = 0; index < auraRings.length; ++index) {
-            if (auraRings[index][field] === term) {
+            if (auraRings[index][field] == term) {
                 return index;
             }
         }
