@@ -54,10 +54,11 @@ export class Euclidean
      * @param {number} radius
      * @param {number} rotation
      * @param {boolean} close
-     * TODO Projection is incorrect on larger creatures; corners being cut
      */
     static cone(canvas, auraRing, origin, radius, rotation, close)
     {
+        // TODO Projection is incorrect on larger creatures; corners being cut
+
         const points = Euclidean.arcPoints(
             origin,
             radius,

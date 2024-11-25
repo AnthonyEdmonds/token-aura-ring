@@ -80,9 +80,15 @@ Setting the "Angle" to "360" will draw a complete circle.
 
 ### Grid based aura rings
 
+**This feature is experimental and under development**
+
 Checking the "Use grid-based shapes" option will turn the aura ring from euclidean to grid-based, if the current scene has a grid enabled.
 
-Hex grids are not currently supported in this mode.
+![A comparison between a grid-based and euclidean Aura Ring](images/grid-based.jpg)
+
+Tokens must be of a uniform size (1x1, 2x2, 3x3, etc) for this to work.
+
+Hex grids are not currently supported.
 
 ### Negative radius
 
@@ -90,7 +96,7 @@ You may set the radius of an aura ring to a negative value to draw within the to
 
 ![An example of a token with a negative radius](images/negative-radius.jpg)
 
-This will only work with tokens which feauture transparency, and is limited by the overall size of the token.
+This will only work with tokens which feature transparency, and is limited by the overall size of the token.
 
 For example, a standard medium creature (1 square = 5 foot) can have a minimum radius of -2.49 feet.
 

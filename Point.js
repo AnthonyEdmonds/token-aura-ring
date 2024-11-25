@@ -1,11 +1,5 @@
 export class Point
 {
-    /** @type {boolean} */
-    clockwise = true;
-
-    /** @type {boolean} */
-    invert = false;
-
     /** @type {number} */
     #x = 0;
 
@@ -16,16 +10,8 @@ export class Point
      * Create a new Point
      * @param {number|float} x
      * @param {number|float} y
-     * @param {boolean} invert
      */
-    constructor(
-        x = 0,
-        y = 0,
-        invert = false,
-        clockwise = true,
-    ) {
-        this.clockwise = clockwise;
-        this.invert = invert;
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }
@@ -121,16 +107,29 @@ export class Point
     // Comparisons
 
     /**
+     * Whether this point is aligned with the grid
+     * @param {number} gridSize 
+     * @returns {boolean}
+     */
+    isOnGrid(gridSize)
+    {
+        return this.x % gridSize === 0
+            && this.y % gridSize === 0;
+    }
+
+    /**
      * Whether this Point has the same co-ordinates as another Point
      * @param {Point} point
      * @returns {boolean}
      */
-    matches(point) {
+    matches(point)
+    {
         return this.x === point.x
             && this.y === point.y;
     }
 
     // Distances
+
     /**
      * Find the absolute difference between two numbers
      * @param {number|float} start 
@@ -199,5 +198,139 @@ export class Point
     distanceY(point)
     {
         return Point.absoluteDifference(this.y, point.y);
+    }
+
+    // Movement
+
+    /**
+     * Move a point at an angle anti-clockwise
+     * @param {number|float} angle
+     * @param {number} distance
+     */
+    moveAnticlockwise(angle, distance)
+    {
+        switch (true) {
+            case angle === 0:
+            case angle === 360:
+            case angle < 360 && angle > 315:
+                this.x += distance;
+                break;
+
+            case angle === 315:
+            case angle < 315 && angle > 270:
+                this.x += distance;
+                this.y -= distance;
+                break;
+
+            case angle === 270:
+            case angle < 270 && angle > 225:
+                this.y -= distance;
+                break;
+
+            case angle === 225:
+            case angle < 225 && angle > 180:
+                this.x -= distance;
+                this.y -= distance;
+                break;
+
+            case angle === 180:
+            case angle < 180 && angle > 135:
+                this.x -= distance;
+                break;
+
+            case angle === 135:
+            case angle < 135 && angle > 90:
+                this.x -= distance;
+                this.y += distance;
+                break;
+
+            case angle === 90:
+            case angle < 90 && angle > 45:
+                this.y += distance;
+                break;
+
+            case angle === 45:
+            case angle < 45 && angle > 0:
+                this.x += distance;
+                this.y += distance;
+                break;
+        }
+    }
+
+    /**
+     * Move a point at an angle clockwise
+     * @param {number|float} angle
+     * @param {number} distance
+     */
+    moveClockwise(angle, distance)
+    {
+        switch (true) {
+            case angle === 0:
+            case angle === 360:
+            case angle > 0 && angle < 45:
+                this.x += distance;
+                break;
+
+            case angle === 45:
+            case angle > 45 && angle < 90:
+                this.x += distance;
+                this.y += distance;
+                break;
+
+            case angle === 90:
+            case angle > 90 && angle < 135:
+                this.y += distance;
+                break;
+
+            case angle === 135:
+            case angle > 135 && angle < 180:
+                this.x -= distance;
+                this.y += distance;
+                break;
+
+            case angle === 180:
+            case angle > 180 && angle < 225:
+                this.x -= distance;
+                break;
+
+            case angle === 225:
+            case angle > 225 && angle < 270:
+                this.x -= distance;
+                this.y -= distance;
+                break;
+
+            case angle === 270:
+            case angle > 270 && angle < 315:
+                this.y -= distance;
+                break;
+
+            case angle === 315:
+            case angle > 315 && angle < 360:
+                this.x += distance;
+                this.y -= distance;
+                break; 
+        }
+    }
+
+    /**
+     * Move a point by an amount
+     * @param {number} x
+     * @param {number} y
+     */
+    moveBy(x, y)
+    {
+        this.x += x;
+        this.y += y;
+    }
+
+    /**
+     * Move a point to a co-ordinate
+     * @param {number} x
+     * @param {number} y
+     */
+    moveTo(x, y)
+    {
+        this.x = x;
+        this.y = y;
     }
 }

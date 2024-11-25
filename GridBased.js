@@ -1,6 +1,8 @@
 import { Euclidean } from "./Euclidean.js";
 import { Point } from "./Point.js";
 
+// TODO Need to expand circle based on irregular token
+
 export class GridBased
 {
     /**
@@ -38,7 +40,6 @@ export class GridBased
             canvas, 
             simpleTokenDocument,
             GridBased.baseCircle(simpleTokenDocument, origins, radius, gridSize, gridOffset),
-            gridSize,
             gridOffset,
         );
     }
@@ -71,27 +72,23 @@ export class GridBased
         const closestOriginToStart = GridBased.getClosestPointTo(origin, arcPoints.start, origins, false);
         const closestOriginToEnd = GridBased.getClosestPointTo(origin, arcPoints.end, origins, true);
 
-        closestOriginToStart.invert = true;
-        closestOriginToStart.clockwise = false;
-        closestOriginToEnd.invert = true;
-        closestOriginToEnd.clockwise = true;
-
         let cone = GridBased.removePointsBetween(circle, closestCircleToEnd, closestCircleToStart);
         GridBased.addCorners(cone);
         cone.unshift(
-            new Point(origin.x, origin.y, true, false),
+            new Point(origin.x, origin.y),
             closestOriginToStart,
             ...GridBased.connectEnd(closestOriginToStart, closestCircleToStart, gridSize, false),
         );
         cone.push(
             ...GridBased.connectEnd(closestOriginToEnd, closestCircleToEnd, gridSize, true),
             closestOriginToEnd,
-            new Point(origin.x, origin.y, true, true),
+            new Point(origin.x, origin.y),
         );
         cone = GridBased.bridgeGaps(cone, gridSize, true);
+        cone = GridBased.removeDuplicatePoints(cone);
 
-        GridBased.debugDrawPoints(canvas, cone, '#00ff00', '#222222');
-        GridBased.drawPoints(canvas, simpleTokenDocument, cone, gridSize, gridOffset);
+        // GridBased.debugDrawPoints(canvas, cone, '#00ff00', '#222222');
+        GridBased.drawAroundPointsClockwise(canvas, cone, origin, gridSize, gridOffset);
     }
 
     // Shapes
@@ -166,11 +163,11 @@ export class GridBased
         const end = points[points.length - 1];
 
         points.unshift(
-            new Point(start.x, start.y, true, false),
+            new Point(start.x, start.y),
         );
 
         points.push(
-            new Point(end.x, end.y, true, true),
+            new Point(end.x, end.y),
         );
     }
 
@@ -178,10 +175,9 @@ export class GridBased
      * Bridge the gaps between points on straights and diagonals
      * @param {Point[]} points 
      * @param {number} gridSize
-     * @param {boolean} invert
      * @returns {Point[]}
      */
-    static bridgeGaps(points, gridSize, invert = false)
+    static bridgeGaps(points, gridSize)
     {
         const bridgedPoints = [];
         let previousPoint = points[points.length - 1];
@@ -214,7 +210,7 @@ export class GridBased
                     break;
                 }
 
-                const newPoint = new Point(bridgeX, bridgeY, invert, point.clockwise);
+                const newPoint = new Point(bridgeX, bridgeY);
                 bridgedPoints.push(newPoint);
                 previousPoint = newPoint;
             } while (differenceX > gridSize || differenceY > gridSize);
@@ -247,104 +243,12 @@ export class GridBased
         let distance = origin.distanceTo(target);
 
         while (distance > targetDistance) {
-            const point = new Point(currentPoint.x, currentPoint.y, true, clockwise);
+            const point = new Point(currentPoint.x, currentPoint.y);
             angle = currentPoint.angleTo(target);
 
-            if (clockwise === true) {
-                switch (true) {
-                    case angle === 0:
-                    case angle === 360:
-                    case angle > 0 && angle < 45:
-                        point.x += gridSize;
-                        break;
-
-                    case angle === 45:
-                    case angle > 45 && angle < 90:
-                        point.x += gridSize;
-                        point.y += gridSize;
-                        break;
-
-                    case angle === 90:
-                    case angle > 90 && angle < 135:
-                        point.y += gridSize;
-                        break;
-
-                    case angle === 135:
-                    case angle > 135 && angle < 180:
-                        point.x -= gridSize;
-                        point.y += gridSize;
-                        break;
-
-                    case angle === 180:
-                    case angle > 180 && angle < 225:
-                        point.x -= gridSize;
-                        break;
-
-                    case angle === 225:
-                    case angle > 225 && angle < 270:
-                        point.x -= gridSize;
-                        point.y -= gridSize;
-                        break;
-
-                    case angle === 270:
-                    case angle > 270 && angle < 315:
-                        point.y -= gridSize;
-                        break;
-
-                    case angle === 315:
-                    case angle > 315 && angle < 360:
-                        point.x += gridSize;
-                        point.y -= gridSize;
-                        break; 
-                }
-            } else {
-                switch (true) {
-                    case angle === 0:
-                    case angle === 360:
-                    case angle < 360 && angle > 315:
-                        point.x += gridSize;
-                        break;
-
-                    case angle === 315:
-                    case angle < 315 && angle > 270:
-                        point.x += gridSize;
-                        point.y -= gridSize;
-                        break;
-
-                    case angle === 270:
-                    case angle < 270 && angle > 225:
-                        point.y -= gridSize;
-                        break;
-
-                    case angle === 225:
-                    case angle < 225 && angle > 180:
-                        point.x -= gridSize;
-                        point.y -= gridSize;
-                        break;
-
-                    case angle === 180:
-                    case angle < 180 && angle > 135:
-                        point.x -= gridSize;
-                        break;
-
-                    case angle === 135:
-                    case angle < 135 && angle > 90:
-                        point.x -= gridSize;
-                        point.y += gridSize;
-                        break;
-
-                    case angle === 90:
-                    case angle < 90 && angle > 45:
-                        point.y += gridSize;
-                        break;
-
-                    case angle === 45:
-                    case angle < 45 && angle > 0:
-                        point.x += gridSize;
-                        point.y += gridSize;
-                        break;
-                }
-            }
+            clockwise === true
+                ? point.moveClockwise(angle, gridSize)
+                : point.moveAnticlockwise(angle, gridSize);
 
             points.push(point);
 
@@ -357,67 +261,123 @@ export class GridBased
             : points;
     }
 
+
+    /**
+     * Draw points onto the canvas wrapping clockwise
+     * @param {PIXI.Graphics} canvas 
+     * @param {Point[]} points
+     * @param {Point} origin
+     * @param {number} gridSize
+     * @param {number} gridOffset
+     */
+    static drawAroundPointsClockwise(canvas, points, origin, gridSize, gridOffset)
+    {
+        const cursor = new Point()
+
+        for (let index = 0; index < points.length; ++index) {
+            const currentPoint = points[index];
+
+            if (index === 0) {
+                cursor.moveTo(currentPoint.x, currentPoint.y);
+
+                if (currentPoint.isOnGrid(gridSize) === false) {
+                    const angle = cursor.angleTo(origin);
+                    const modifier = angle % 90 === 0 ? 45 : 0;
+                    cursor.moveClockwise(angle + modifier, gridOffset);
+                }
+
+                canvas.moveTo(cursor.x, cursor.y);
+            }
+
+            if (currentPoint.isOnGrid(gridSize) === true) {
+                cursor.moveTo(currentPoint.x, currentPoint.y);
+                canvas.lineTo(currentPoint.x, currentPoint.y);
+                continue;
+            }
+
+            const nextPoint = index === points.length - 1
+                ? points[0]
+                : points[index + 1];
+
+            const outgoingAngle = currentPoint.angleTo(nextPoint);
+
+            let targetAngle;
+
+            switch (outgoingAngle) {
+                case 0:
+                    targetAngle = 315;
+                    break;
+
+                case 45:
+                case 135:
+                case 225:
+                case 315:
+                    targetAngle = outgoingAngle;
+                    break;
+
+                default:
+                    targetAngle = outgoingAngle - 45
+                    break;
+            }
+
+            let cursorAngle = currentPoint.angleTo(cursor);
+            let safety = 4;
+
+            while (cursorAngle !== targetAngle) {
+                switch (cursorAngle) {
+                    case 45:
+                        cursor.moveBy(-gridSize, 0);
+                        break;
+
+                    case 135:
+                        cursor.moveBy(0, -gridSize);
+                        break;
+
+                    case 225:
+                        cursor.moveBy(gridSize, 0);
+                        break;
+
+                    case 315:
+                        cursor.moveBy(0, gridSize);
+                        break;
+                }
+
+                canvas.lineTo(cursor.x, cursor.y);
+                cursorAngle = currentPoint.angleTo(cursor);
+
+                safety--;
+                if (safety === 0) {
+                    console.warn('Safety hit');
+                    break;
+                }
+            }
+        }
+
+        canvas.closePath();
+    }
+
     /**
      * Draw points onto the canvas
      * @param {PIXI.Graphics} canvas
      * @param {SimpleTokenDocument} simpleTokenDocument
      * @param {Point[]} points
-     * @param {number} gridSize
      * @param {number} gridOffset
      */
-    static drawPoints(canvas, simpleTokenDocument, points, gridSize, gridOffset)
+    static drawPoints(canvas, simpleTokenDocument, points, gridOffset)
     {
-        // TODO Point on corner which steps out from the main branch cuts in on itself
-
         const originX = simpleTokenDocument.object.w / 2;
         const originY = simpleTokenDocument.object.h / 2;
         let first = true;
 
         for (const point of points) {
-            const offsetX = point.x % gridSize;
-            const offsetY = point.y % gridSize;
-
-            if (offsetX !== 0) {
+            if (point.x !== originX || point.y !== originY) {
                 point.x += point.x <= originX
                     ? -gridOffset
                     : gridOffset;
-            }
-
-            if (offsetY !== 0) {
+            
                 point.y += point.y <= originY
                     ? -gridOffset
                     : gridOffset;
-            }
-
-            if (point.invert === true && offsetX !== 0 && offsetY !== 0) {
-                const directionX = point.x < originX;
-                const directionY = point.y < originY;
-
-                switch (true) {
-                    case directionX === false && directionY === false:
-                        point.clockwise === true
-                            ? point.x -= gridSize
-                            : point.y -= gridSize;
-                        break;
-
-                    case directionX === true && directionY === false:
-                        point.clockwise === true
-                            ? point.y -= gridSize
-                            : point.x += gridSize;
-                        break;
-
-                    case directionX === true && directionY === true:
-                        point.clockwise === true
-                            ? point.x += gridSize
-                            : point.y += gridSize;
-                        break;
-
-                    case directionX === false && directionY === true:
-                        point.clockwise === true
-                            ? point.y += gridSize
-                            : point.x -= gridSize;
-                        break;
-                }
             }
 
             if (first === true) {
@@ -623,17 +583,12 @@ export class GridBased
 
     // Debug
 
-    static debugDrawPoints(canvas, points, strokeColour = '#ff0000', fillColour = '#00ff00')
+    static debugDrawPoints(canvas, points)
     {
         let current = 5;
 
-        canvas.lineStyle(3, strokeColour, 1, 0.5);
         for (let point of points) {
-            canvas.lineTo(point);
-        }
-
-        canvas.lineStyle(3, fillColour, 1, 0.5);
-        for (let point of points) {
+            canvas.lineStyle(3, '#ff0000');
             canvas.drawCircle(point.x, point.y, current);
             current+=0.5;
         }
