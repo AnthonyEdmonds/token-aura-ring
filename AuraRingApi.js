@@ -24,13 +24,13 @@ export class AuraRingApi
     /**
      * Retrieve all Aura Rings
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {TokenDocument} tokenDocument
      * 
      * @returns {Array[AuraRing]}
      */
-    static all(simpleTokenDocument)
+    static all(tokenDocument)
     {
-        return AuraRingFlags.getAuraRings(simpleTokenDocument);
+        return AuraRingFlags.getAuraRings(tokenDocument);
     }
 
     /**
@@ -46,55 +46,94 @@ export class AuraRingApi
     /**
      * Remove an Aura Ring
      * 
-     * @param {SimpleTokenDocument*} simpleTokenDocument
+     * @param {TokenDocument*} tokenDocument
      * @param {number} id
      */
-    static delete(simpleTokenDocument, id)
+    static delete(tokenDocument, id)
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
-        const index = AuraRingApi.getAuraRingIndex(id);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
+        const index = AuraRingApi.getAuraRingIndex(auraRings, id);
 
         if (index !== false) {
             auraRings.splice(index, 1);
-            AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
+            AuraRingFlags.setAuraRings(tokenDocument, auraRings);
         }
     }
 
     /**
      * Remove all Aura Rings
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {TokenDocument} tokenDocument
      */
-    static deleteAll(simpleTokenDocument)
+    static deleteAll(tokenDocument)
     {
-        AuraRingFlags.setAuraRings(simpleTokenDocument, []);
+        AuraRingFlags.setAuraRings(tokenDocument, []);
     }
 
     /**
      * Retrieve a specific Aura Ring
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument
-     * @param {number} id
+     * @param {TokenDocument} tokenDocument
+     * @param {number|string} term
+     * @param {string} field
      * 
      * @returns {AuraRing|false}
      */
-    static get(simpleTokenDocument, id)
+    static get(tokenDocument, term, field = 'id')
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
 
-        return AuraRingApi.getAuraRing(auraRings, id);
+        return AuraRingApi.getAuraRing(auraRings, term, field);
+    }
+
+    /**
+     * Retrieve an Aura Ring by any field
+     * 
+     * @param {AuraRing[]} auraRings 
+     * @param {number|string} term
+     * @param {string} field
+     * @returns {AuraRing|false}
+     */
+    static getAuraRing(auraRings, term, field = 'id')
+    {
+        for (const auraRing of auraRings) {
+            if (auraRing[field] === term) {
+                return auraRing;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieve the index of an Aura Ring by any field
+     * 
+     * @param {AuraRing[]} auraRings 
+     * @param {number|string} term
+     * @param {string} field
+     * @returns {AuraRing|false}
+     */
+    static getAuraRingIndex(auraRings, term, field = 'id')
+    {
+        for (let index = 0; index < auraRings.length; ++index) {
+            if (auraRings[index][field] === term) {
+                return index;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Retrieve a list of Aura Ring names keyed by their ID
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {TokenDocument} tokenDocument
      * 
      * @returns {Object}
      */
-    static index(simpleTokenDocument)
+    static index(tokenDocument)
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
         const index = {};
 
         for (const auraRing of auraRings) {
@@ -108,18 +147,18 @@ export class AuraRingApi
      * Create a new Aura Ring from the default settings
      * The ID of the Aura Ring will be set to the next available
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument
+     * @param {TokenDocument} tokenDocument
      * 
      * @returns {AuraRing} As given, but with the new ID
      */
-    static new(simpleTokenDocument)
+    static new(tokenDocument)
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
         const auraRing = AuraRingDataModel.defaultSettings();
 
         auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
         auraRings.push(auraRing);
-        AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
 
         return auraRing;
     }
@@ -127,12 +166,12 @@ export class AuraRingApi
     /**
      * Overwrite an Aura Ring with new settings
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {TokenDocument} tokenDocument 
      * @param {AuraRing} auraRing
      */
-    static set(simpleTokenDocument, auraRing)
+    static set(tokenDocument, auraRing)
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
         const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
 
         if (index !== false) {
@@ -140,63 +179,33 @@ export class AuraRingApi
         }
 
         auraRings.push(auraRing);
-        AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
     }
 
     /**
      * Overwrite all Aura Rings with a new set
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {TokenDocument} tokenDocument 
      * @param {Array[AuraRing]} auraRings 
      */
-    static setAll(simpleTokenDocument, auraRings)
+    static setAll(tokenDocument, auraRings)
     {
-        AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
     }
 
     /**
      * Update a specific Aura Ring value directly
      * 
-     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {TokenDocument} tokenDocument 
      * @param {number} id 
      * @param {string} key 
      * @param {number|string|boolean} value 
      */
-    static setValue(simpleTokenDocument, id, key, value)
+    static setValue(tokenDocument, id, key, value)
     {
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
         const index = this.getAuraRingIndex(auraRings, id);
         auraRings[index][key] = value;
-        AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
-    }
-
-    static getAuraRing(auraRings, id)
-    {
-        if (typeof id === 'number') {
-            id = `${id}`;
-        }
-
-        for (const auraRing of auraRings) {
-            if (auraRing.id === id) {
-                return auraRing;
-            }
-        }
-
-        return false;
-    }
-
-    static getAuraRingIndex(auraRings, id)
-    {
-        if (typeof id === 'number') {
-            id = `${id}`;
-        }
-
-        for (const index in auraRings) {
-            if (auraRings[index].id === id) {
-                return index;
-            }
-        }
-
-        return false;
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
     }
 }
