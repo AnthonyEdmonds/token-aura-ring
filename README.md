@@ -104,6 +104,8 @@ For example, a standard medium creature (1 square = 5 foot) can have a minimum r
 
 Module developers can control Aura Rings using the `AuraRingApi` class.
 
+Macro developers can control Aura Rings using the `foundry.tokenAuraRing` endpoint.
+
 | Function  | Parameters                           | Returns          | Description |
 | --------- | ------------------------------------ | ---------------- | ----------- |
 | all       | SimpleTokenDocument                  | Array[AuraRing]  | Retrieve all Aura Rings |
@@ -120,6 +122,19 @@ Module developers can control Aura Rings using the `AuraRingApi` class.
 All changes will trigger flag updates on the SimpleTokenDocument, and can be edited in the normal UI.
 
 It is left up to the module developer to ensure that any set Aura Rings are valid.
+
+### Macro example
+
+This macro will list all of the Aura Rings on the selected token:
+
+1. Create a new `script` macro
+2. Paste the following:
+   ```javascript
+   console.log(
+       foundry.tokenAuraRing.all(token.document),
+   );
+   ```
+3. Select a token and run the macro to see a list of the Aura Rings on that token in the console
 
 ## Issues
 
