@@ -1,5 +1,5 @@
-import { AuraRingDataModel } from "./AuraRingDataModel";
-import { AuraRingFlags } from "./AuraRingFlags";
+import { AuraRingDataModel } from "./AuraRingDataModel.js";
+import { AuraRingFlags } from "./AuraRingFlags.js";
 
 export class AuraRingApi
 {
