@@ -529,7 +529,7 @@ export class GridBased
         let inverse = false;
         let startIndex = null;
 
-        for (const index in points) {
+        for (let index = 0; index < points.length; ++index) {
             const point = points[index];
 
             if (
@@ -558,7 +558,7 @@ export class GridBased
             endIndex = swap;
         }
 
-        for (const index in points) {
+        for (let index = 0; index < points.length; ++index) {
             if (inverse === true) {
                 if (index < startIndex || index > endIndex) {
                     continue;

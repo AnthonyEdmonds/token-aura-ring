@@ -167,10 +167,6 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     getAuraRing(id)
     {
-        if (typeof id === 'number') {
-            id = `${id}`;
-        }
-
         for (const auraRing of this.auraRings) {
             if (auraRing.id === id) {
                 return auraRing;
@@ -182,11 +178,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     getAuraRingIndex(id)
     {
-        if (typeof id === 'number') {
-            id = `${id}`;
-        }
-
-        for (const index in this.auraRings) {
+        for (let index = 0; index < this.auraRings.length; ++index) {
             if (this.auraRings[index].id === id) {
                 return index;
             }
@@ -305,7 +297,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         const formData = new FormDataExtended(form);
         const newAuraRings = this.gatherFormData(formData);
 
-        for (const index in newAuraRings) {
+        for (let index = 0; index < newAuraRings.length; ++index) {
             this.auraRings[index] = newAuraRings[index];
         }
 
