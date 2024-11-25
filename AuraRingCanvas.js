@@ -36,14 +36,14 @@ export class AuraRingCanvas
     // Handlers
     static async handleDestroyToken(simpleToken)
     {
-        if (AuraRingCanvas.isClass(simpleToken, 'SimpleToken') === true) {
+        if (AuraRingCanvas.isClass(simpleToken, Token) === true) {
             AuraRingCanvas.getCanvas(simpleToken)?.destroyPixiAuraContainer();
         }
     }
     
     static async handleRefreshToken(simpleToken)
     {
-        if (AuraRingCanvas.isClass(simpleToken, 'SimpleToken') === true) {
+        if (AuraRingCanvas.isClass(simpleToken, Token) === true) {
             AuraRingCanvas.getCanvas(simpleToken)?.drawCanvas();
         }
     }
@@ -57,7 +57,7 @@ export class AuraRingCanvas
     
     static async handleUpdateToken(simpleTokenDocument)
     {
-        if (AuraRingCanvas.isClass(simpleTokenDocument, 'SimpleTokenDocument') === true) {
+        if (AuraRingCanvas.isClass(simpleTokenDocument, TokenDocument) === true) {
             AuraRingCanvas.handleRefreshToken(simpleTokenDocument.object);
         }
     }
@@ -68,7 +68,7 @@ export class AuraRingCanvas
             return false;
         }
 
-        return object.constructor.name === type;
+        return object instanceof type === true;
     }
 
     // Canvas
