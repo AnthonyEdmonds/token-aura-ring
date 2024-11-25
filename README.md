@@ -12,6 +12,8 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 ![How token aura rings appear to players](images/player.jpg)
 
+Creatures larger than 1 tile will have flattened sides to correctly represent their aura range.
+
 Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
 Hidden tokens will only show their aura rings to the game master.
@@ -75,6 +77,49 @@ The arc is centralised around its direction, where an angle of "90" would have 4
 When you rotate the token the arc will rotate with it.
 
 Setting the "Angle" to "360" will draw a complete circle.
+
+### Grid based aura rings
+
+**This feature is experimental and under development**
+
+Checking the "Use grid-based shapes" option will turn the aura ring from euclidean to grid-based, if the current scene has a grid enabled.
+
+![A comparison between a grid-based and euclidean Aura Ring](images/grid-based.jpg)
+
+Tokens must be of a uniform size (1x1, 2x2, 3x3, etc) for this to work.
+
+Hex grids are not currently supported.
+
+### Negative radius
+
+You may set the radius of an aura ring to a negative value to draw within the token's bounds.
+
+![An example of a token with a negative radius](images/negative-radius.jpg)
+
+This will only work with tokens which feature transparency, and is limited by the overall size of the token.
+
+For example, a standard medium creature (1 square = 5 foot) can have a minimum radius of -2.49 feet.
+
+## API
+
+Module developers can control Aura Rings using the `AuraRingApi` class.
+
+| Function  | Parameters                           | Returns          | Description |
+| --------- | ------------------------------------ | ---------------- | ----------- |
+| all       | SimpleTokenDocument                  | Array[AuraRing]  | Retrieve all Aura Rings |
+| blank     |                                      | AuraRing         | Get an unsaved empty Aura Ring without an ID |
+| delete    | SimpleTokenDocument, id              |                  | Remove an Aura Ring |
+| deleteAll | SimpleTokenDocument                  |                  | Remove all Aura Rings |
+| get       | SimpleTokenDocument, id              | AuraRing|false   | Retrieve a specific Aura Ring |
+| index     | SimpleTokenDocument                  | Object{id: name} | Retrieve a list of Aura Ring names keyed by their ID |
+| new       | SimpleTokenDocument                  | AuraRing         | Create a new Aura Ring from the default settings |
+| set       | SimpleTokenDocument, AuraRing        |                  | Overwrite an Aura Ring with new settings |
+| setAll    | SimpleTokenDocument, Array[AuraRing] |                  | Overwrite all Aura Rings with a new set |
+| setValue  | simpleTokenDocument, id, key, value  |                  | Update a specific Aura Ring value directly |
+
+All changes will trigger flag updates on the SimpleTokenDocument, and can be edited in the normal UI.
+
+It is left up to the module developer to ensure that any set Aura Rings are valid.
 
 ## Issues
 

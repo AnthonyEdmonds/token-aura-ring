@@ -7,6 +7,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
         [
             'name',
             'visibility',
+            'use_grid_shapes',
         ],
         [
             'radius',
@@ -41,6 +42,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             stroke_colour: AuraRingDataModel.strokeColourField(defaults.stroke_colour),
             stroke_opacity: AuraRingDataModel.strokeOpacityField(defaults.stroke_opacity),
             stroke_weight: AuraRingDataModel.strokeWeightField(defaults.stroke_weight),
+            use_grid_shapes: AuraRingDataModel.useGridShapesField(defaults.use_grid_shapes),
             visibility: AuraRingDataModel.visibilityField(defaults.visibility),
         };
     }
@@ -59,6 +61,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             stroke_colour: '#ff0000',
             stroke_opacity: 0.75,
             stroke_weight: 4,
+            use_grid_shapes: false,
             visibility: 'PLAYER',
         };
     }
@@ -264,9 +267,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             ),
             AuraRingField.numberFieldParams(
                 null,
-                null,
-                null,
-                false,
             ),
         );
     }
@@ -337,6 +337,19 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 null,
                 true,
                 true,
+            ),
+        );
+    }
+
+    static useGridShapesField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Use grid-based shapes, if enabled?',
+                initial,
+            ),
+            AuraRingField.dataFieldContext(
+                'use_grid_shapes',
             ),
         );
     }
