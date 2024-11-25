@@ -112,7 +112,7 @@ Macro developers can control Aura Rings using the `TokenAuraRing` global variabl
 | blank     |                                   | AuraRing         | Get an unsaved empty Aura Ring without an ID |
 | delete    | TokenDocument, id                 |                  | Remove an Aura Ring |
 | deleteAll | TokenDocument                     |                  | Remove all Aura Rings |
-| get       | TokenDocument, term, field = 'id' | AuraRing|false   | Retrieve a specific Aura Ring by a field, ID by default |
+| get       | TokenDocument, term, field = 'id' | AuraRing\|false   | Retrieve a specific Aura Ring by a field, ID by default |
 | index     | TokenDocument                     | Object{id: name} | Retrieve a list of Aura Ring names keyed by their ID |
 | new       | TokenDocument                     | AuraRing         | Create a new Aura Ring from the default settings |
 | set       | TokenDocument, AuraRing           |                  | Overwrite an Aura Ring with new settings |
