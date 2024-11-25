@@ -1,5 +1,6 @@
 import { AuraRingCanvas } from './AuraRingCanvas.js';
 import { AuraRingFormApplication } from './AuraRingFormApplication.js';
+import { AuraRingApi } from './AuraRingApi.js';
 
 Hooks.on('renderTokenConfig', function (config) {
     const formApplication = new AuraRingFormApplication(config.preview);
@@ -41,4 +42,11 @@ Hooks.on('initializeVisionSources', function () {
 
     // Fired on: updated (for client)
     Hooks.on('updateToken', AuraRingCanvas.handleUpdateToken);
+});
+
+/**
+ * Add the AuraRingApi to the window
+ */
+Hooks.on('init', function () {
+    globalThis.TokenAuraRing = AuraRingApi;
 });
