@@ -12,10 +12,11 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
             changeTab: AuraRingFormApplication.handleChangeTab,
             deleteAuraRing: AuraRingFormApplication.handleDeleteAuraRing,
             duplicateAuraRing: AuraRingFormApplication.handleDuplicateAuraRing,
+            toggleHide: AuraRingFormApplication.handleToggleHide,
         },
         form: {
             handler: AuraRingFormApplication.handleForm,
-            submitOnChange: false, // Could be useful for live updates?
+            submitOnChange: false,
             closeOnSubmit: true,
         },
         id: `${AuraRingFlags.namespace}-{id}`,
@@ -43,7 +44,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     auraRings = [];
 
-    currentTab = null;
+    currentTab = 0;
 
     preview;
 
@@ -84,8 +85,14 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         }
 
         const dataModels = [];
+
         for (const auraRing of auraRings) {
-            dataModels.push(new AuraRingDataModel(auraRing));
+            try {
+                dataModels.push(new AuraRingDataModel(auraRing));
+            } catch (error) {
+                console.error('A malformed Aura Ring was detected; removing.');
+                this.deleteAuraRing(auraRing.id);
+            }
         }
 
         return {
@@ -94,24 +101,27 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     }
 
     // Handlers
-    static async handleAddAuraRing(event, target)
+    static async handleAddAuraRing()
     {
         this.addAuraRing();
     }
 
-    static async handleChangeTab(event, target)
+    static async handleChangeTab(event)
     {
-        this.changeTab(target.dataset.tab);
+        const auraId = parseInt(event.target.dataset.aura);
+        this.changeTab(auraId);
     }
 
-    static async handleDeleteAuraRing(event, target)
+    static async handleDeleteAuraRing(event)
     {
-        this.confirmDelete(target.dataset.aura);
+        const auraId = parseInt(event.target.dataset.aura);
+        this.confirmDelete(auraId);
     }
 
-    static async handleDuplicateAuraRing(event, target)
+    static async handleDuplicateAuraRing(event)
     {
-        this.duplicateAuraRing(target.dataset.aura);
+        const auraId = parseInt(event.target.dataset.aura);
+        this.duplicateAuraRing(auraId);
     }
 
     static async handleForm(event, form, formData)
@@ -124,7 +134,14 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     static async handleRenameAuraRing(event)
     {
-        this.renameAuraRing(event.target.dataset.aura, event.target.value);
+        const auraId = parseInt(event.target.dataset.aura);
+        this.renameAuraRing(auraId, event.target.value);
+    }
+
+    static async handleToggleHide(event)
+    {
+        const auraId = parseInt(event.target.dataset.aura);
+        this.toggleHideAuraRing(auraId);
     }
 
     // Aura Rings
@@ -155,7 +172,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     duplicateAuraRing(id)
     {
         const source = this.getAuraRing(id);
-        const clone = deepClone(source);
+        const clone = foundry.utils.deepClone(source);
 
         clone.id = AuraRingFlags.nextAvailableId(this.auraRings);
         clone.name = `Copy of ${source.name}`;
@@ -194,7 +211,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         this.render();
     }
 
-    sortAuraRings (first, second) {
+    sortAuraRings(first, second) {
         if (first.name < second.name) {
             return -1;
         }
@@ -204,6 +221,13 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         }
 
         return 0;
+    }
+
+    toggleHideAuraRing(id)
+    {
+        const index = this.getAuraRingIndex(id);
+        this.auraRings[index].hide = !this.auraRings[index].hide;
+        this.render();
     }
 
     // Dialogs
@@ -250,14 +274,23 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     changeTab(target)
     {
+        const articles = document.querySelectorAll('[data-group="auraRingArticles"]');
         const tabs = document.querySelectorAll('[data-group="auraRingTabs"]');
+        
+        const targetId = `${target}`;
 
-        if (typeof target !== 'string') {
-            target = `${target}`;
+        for (const article of articles) {
+            if (article.dataset.aura === targetId) {
+                article.classList.add('active');
+                article.classList.remove('hidden');
+            } else {
+                article.classList.remove('active');
+                article.classList.add('hidden');
+            }
         }
 
         for (const tab of tabs) {
-            tab.dataset.tab === target
+            tab.dataset.aura === targetId
                 ? tab.classList.add('active')
                 : tab.classList.remove('active');
         }
@@ -272,7 +305,9 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
         for (const field in formData.object) {
             const index = field.indexOf('_');
-            const id = field.slice(0, index);
+            const id = parseInt(
+                field.slice(0, index),
+            );
             const key = field.slice(index + 1);
             const value = formData.object[field];
 

@@ -8,6 +8,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             'name',
             'visibility',
             'use_grid_shapes',
+            'hide',
         ],
         [
             'radius',
@@ -35,6 +36,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             direction: AuraRingDataModel.directionField(defaults.direction),
             fill_colour: AuraRingDataModel.fillColourField(defaults.fill_colour),
             fill_opacity: AuraRingDataModel.fillOpacityField(defaults.fill_opacity),
+            hide: AuraRingDataModel.hideField(defaults.hide),
             id: AuraRingDataModel.idField(defaults.id),
             name: AuraRingDataModel.nameField(defaults.name),
             radius: AuraRingDataModel.radiusField(defaults.radius),
@@ -54,6 +56,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             direction: 0,
             fill_colour: '#000000',
             fill_opacity: 0,
+            hide: false,
             id: 0,
             name: 'Aura',
             radius: 20,
@@ -210,6 +213,19 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 0,
                 1,
                 false,
+            ),
+        );
+    }
+
+    static hideField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Hide Aura Ring',
+                initial,
+            ),
+            AuraRingField.dataFieldContext(
+                'hide',
             ),
         );
     }
