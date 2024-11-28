@@ -244,6 +244,10 @@ export class AuraRingCanvas
     
     shouldRender(auraRing)
     {
+        if (auraRing.hide === true) {
+            return false;
+        }
+
         if (auraRing.radius === 0) {
             return false;
         }

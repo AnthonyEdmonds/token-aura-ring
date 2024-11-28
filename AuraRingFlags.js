@@ -7,27 +7,27 @@ export class AuraRingFlags
     static namespace = 'token-aura-ring';
 
     // Flags
-    static getAuraRings(simpleTokenDocument)
+    static getAuraRings(tokenDocument)
     {
-        if (AuraRingFlags.hasAuraRings(simpleTokenDocument) === false) {
-            AuraRingFlags.setAuraRings(simpleTokenDocument, []);
+        if (AuraRingFlags.hasAuraRings(tokenDocument) === false) {
+            AuraRingFlags.setAuraRings(tokenDocument, []);
         }
 
-        return simpleTokenDocument.getFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey);
+        return tokenDocument.getFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey);
     }
 
-    static hasAuraRings(simpleTokenDocument)
+    static hasAuraRings(tokenDocument)
     {
-        if (simpleTokenDocument.flags.hasOwnProperty(AuraRingFlags.namespace) === false) {
+        if (tokenDocument.flags.hasOwnProperty(AuraRingFlags.namespace) === false) {
             return false;
         }
 
-        return simpleTokenDocument.flags[AuraRingFlags.namespace].hasOwnProperty(AuraRingFlags.auraRingsKey) === true;
+        return tokenDocument.flags[AuraRingFlags.namespace].hasOwnProperty(AuraRingFlags.auraRingsKey) === true;
     }
 
-    static setAuraRings(simpleTokenDocument, auraRings)
+    static setAuraRings(tokenDocument, auraRings)
     {
-        simpleTokenDocument.setFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey, auraRings);
+        tokenDocument.setFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey, auraRings);
     }
 
     // Auras
@@ -41,7 +41,7 @@ export class AuraRingFlags
         }
 
         while (potentialId < 100) {
-            if (usedIds.includes(`${potentialId}`) === false) {
+            if (usedIds.includes(potentialId) === false) {
                 return potentialId;
             }
 
@@ -50,20 +50,20 @@ export class AuraRingFlags
     }
 
     // Migration
-    static migrateData(simpleTokenDocument)
+    static migrateData(tokenDocument)
     {
-        if (AuraRingFlags.needsMigration(simpleTokenDocument) === false) {
+        if (AuraRingFlags.needsMigration(tokenDocument) === false) {
            return;
         }
 
-        const auraRings = AuraRingFlags.getAuraRings(simpleTokenDocument);
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
 
-        for (const key in simpleTokenDocument.flags[AuraRingFlags.namespace]) {
+        for (const key in tokenDocument.flags[AuraRingFlags.namespace]) {
             if (key === AuraRingFlags.auraRingsKey) {
                 continue;
             }
 
-            const oldAuraRing = simpleTokenDocument.getFlag(AuraRingFlags.namespace, key);
+            const oldAuraRing = tokenDocument.getFlag(AuraRingFlags.namespace, key);
             const newAuraRing = AuraRingFlags.migrateFromV1(
                 oldAuraRing,
                 AuraRingFlags.nextAvailableId(auraRings),
@@ -71,17 +71,17 @@ export class AuraRingFlags
             );
 
             auraRings.push(newAuraRing);
-            simpleTokenDocument.unsetFlag(AuraRingFlags.namespace, key);
+            tokenDocument.unsetFlag(AuraRingFlags.namespace, key);
         }
 
-        AuraRingFlags.setAuraRings(simpleTokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
     }
 
     static migrateFromV1(oldAuraRing, newId, name)
     {
         const newAuraRing = AuraRingDataModel.defaultSettings();
 
-        newAuraRing.id = `${newId}`;
+        newAuraRing.id = newId;
         newAuraRing.name = name;
 
         AuraRingFlags.migrateField(oldAuraRing, 'angle', newAuraRing, 'angle');
@@ -95,13 +95,13 @@ export class AuraRingFlags
         return newAuraRing;
     }
 
-    static needsMigration(simpleTokenDocument)
+    static needsMigration(tokenDocument)
     {
-        if (simpleTokenDocument.flags.hasOwnProperty(AuraRingFlags.namespace) === false) {
+        if (tokenDocument.flags.hasOwnProperty(AuraRingFlags.namespace) === false) {
             return false;
         }
 
-        for (const key in simpleTokenDocument.flags[AuraRingFlags.namespace]) {
+        for (const key in tokenDocument.flags[AuraRingFlags.namespace]) {
             if (key !== AuraRingFlags.auraRingsKey) {
                 return true;
             }

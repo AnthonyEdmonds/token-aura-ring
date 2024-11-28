@@ -60,6 +60,8 @@ Press the "Delete Aura Ring" button to remove the currently selected aura ring.
 
 You can control which user roles can see an aura ring using the "Visible to" setting.
 
+You can also quickly show and hide an Aura Ring by pressing the "Eye" button or checking the "Hire Aura Ring" option.
+
 ### Angled aura rings
 
 You can adjust the "Direction" and "Angle" settings to create arcs instead of circles.
@@ -112,7 +114,7 @@ Macro developers can control Aura Rings using the `TokenAuraRing` global variabl
 | blank     |                                   | AuraRing         | Get an unsaved empty Aura Ring without an ID |
 | delete    | TokenDocument, id                 |                  | Remove an Aura Ring |
 | deleteAll | TokenDocument                     |                  | Remove all Aura Rings |
-| get       | TokenDocument, term, field = 'id' | AuraRing\|false   | Retrieve a specific Aura Ring by a field, ID by default |
+| get       | TokenDocument, term, field = 'id' | AuraRing\|false  | Retrieve a specific Aura Ring by a field, ID by default |
 | index     | TokenDocument                     | Object{id: name} | Retrieve a list of Aura Ring names keyed by their ID |
 | new       | TokenDocument                     | AuraRing         | Create a new Aura Ring from the default settings |
 | set       | TokenDocument, AuraRing           |                  | Overwrite an Aura Ring with new settings |

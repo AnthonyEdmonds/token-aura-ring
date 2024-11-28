@@ -4,12 +4,14 @@ import { AuraRingFlags } from "./AuraRingFlags.js";
 export class AuraRingApi
 {
     /**
+     * TODO Make an actual class
      * A Token Aura Ring
      * @typedef  {Object}   AuraRing
      * @property {number}   angle               How wide the Aura Ring should be, from 5 to 360 degrees
      * @property {number}   direction           Which way the Aura Ring should face, from -180 to 180 degrees
      * @property {string}   fill_colour         The fill colour in hex
      * @property {number}   fill_opacity        The fill opacity as a fraction between 0 and 1
+     * @property {boolean}  hide                Whether the Aura Ring should be shown
      * @property {number}   id                  The unique numeric identifier of the Aura Ring
      * @property {string}   name                The display name of the Aura Ring
      * @property {number}   radius              The radius of the Aura Ring, from 0

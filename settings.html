@@ -8,12 +8,24 @@
     >
         <nav class="tabs">
             {{#each auraRings as |auraRing|}}
-                <a
+                <div
                     class="item category-tab category-all"
-                    data-action="changeTab"
                     data-group="auraRingTabs"
-                    data-tab="{{auraRing.id}}"
-                >{{auraRing.name}}</a>
+                    data-aura="{{auraRing.id}}"
+                >
+                    <a
+                        data-action="changeTab"
+                        data-aura="{{auraRing.id}}"
+                    >{{auraRing.name}}</a>
+
+                    <button
+                        class="fas {{#if auraRing.hide}}fa-eye-slash{{else}}fa-eye{{/if}}"
+                        data-action="toggleHide"
+                        data-aura="{{auraRing.id}}"
+                        style="flex: 0; padding: 3px;"
+                        type="button"
+                    />
+                </div>
             {{else}}
                 <p>No Aura Rings have been added.</p>
                 <p>Press the "Add Aura Ring" button below to create one.</p>
@@ -42,8 +54,8 @@
         {{#each auraRings as |auraRing|}}
             <article
                 class="tab category flexcol flex1"
-                data-group="auraRingTabs"
-                data-tab="{{auraRing.id}}"
+                data-group="auraRingArticles"
+                data-aura="{{auraRing.id}}"
                 style="justify-content: space-between;"
             >
                 {{ formGroup auraRing }}
