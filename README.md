@@ -62,6 +62,8 @@ You can control which user roles can see an aura ring using the "Visible to" set
 
 You can also quickly show and hide an Aura Ring by pressing the "Eye" button or checking the "Hire Aura Ring" option.
 
+Enabling the "Only show on hover?" option will cause the Aura Ring to only show when the token is hovered.
+
 ### Angled aura rings
 
 You can adjust the "Direction" and "Angle" settings to create arcs instead of circles.

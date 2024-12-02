@@ -12,10 +12,10 @@ export class AuraRingCanvas
     
     pixiGraphics;
     
-    simpleToken;
+    token;
     
     // Setup
-    constructor(simpleToken)
+    constructor(token)
     {
         this.pixiAurasContainer = AuraRingCanvas.findPixiAurasContainer();
         this.pixiAuraContainer = new PIXI.Container();
@@ -24,41 +24,41 @@ export class AuraRingCanvas
         this.pixiAurasContainer.addChild(this.pixiAuraContainer);
         this.pixiAuraContainer.addChild(this.pixiGraphics);
         
-        this.simpleToken = simpleToken;
+        this.token = token;
     }
     
     // Getters
     get isBeingPreviewed()
     {
-        return typeof this.simpleToken._preview !== 'undefined';
+        return typeof this.token._preview !== 'undefined';
     }
     
     // Handlers
-    static async handleDestroyToken(simpleToken)
+    static async handleDestroyToken(token)
     {
-        if (AuraRingCanvas.isClass(simpleToken, Token) === true) {
-            AuraRingCanvas.getCanvas(simpleToken)?.destroyPixiAuraContainer();
+        if (AuraRingCanvas.isClass(token, Token) === true) {
+            AuraRingCanvas.getCanvas(token)?.destroyPixiAuraContainer();
         }
     }
     
-    static async handleRefreshToken(simpleToken)
+    static async handleRefreshToken(token)
     {
-        if (AuraRingCanvas.isClass(simpleToken, Token) === true) {
-            AuraRingCanvas.getCanvas(simpleToken)?.drawCanvas();
+        if (AuraRingCanvas.isClass(token, Token) === true) {
+            AuraRingCanvas.getCanvas(token)?.drawCanvas();
         }
     }
     
     static async handleSightRefresh()
     {
-        for (const simpleTokenDocument of game.scenes.current.tokens) {
-            AuraRingCanvas.getCanvas(simpleTokenDocument.object)?.refreshSight();
+        for (const tokenDocument of game.scenes.current.tokens) {
+            AuraRingCanvas.getCanvas(tokenDocument.object)?.refreshSight();
         }
     }
     
-    static async handleUpdateToken(simpleTokenDocument)
+    static async handleUpdateToken(tokenDocument)
     {
-        if (AuraRingCanvas.isClass(simpleTokenDocument, TokenDocument) === true) {
-            AuraRingCanvas.handleRefreshToken(simpleTokenDocument.object);
+        if (AuraRingCanvas.isClass(tokenDocument, TokenDocument) === true) {
+            AuraRingCanvas.handleRefreshToken(tokenDocument.object);
         }
     }
     
@@ -72,35 +72,35 @@ export class AuraRingCanvas
     }
 
     // Canvas
-    static getCanvas(simpleToken)
+    static getCanvas(token)
     {
-        if (AuraRingCanvas.hasCanvas(simpleToken) === true) {
-            return simpleToken[AuraRingCanvas.key];
+        if (AuraRingCanvas.hasCanvas(token) === true) {
+            return token[AuraRingCanvas.key];
         }
         
-        if (AuraRingCanvas.shouldHaveCanvas(simpleToken) === true) {
-            return this.makeCanvas(simpleToken);
+        if (AuraRingCanvas.shouldHaveCanvas(token) === true) {
+            return this.makeCanvas(token);
         }
         
         return null;
     }
     
-    static hasCanvas(simpleToken)
+    static hasCanvas(token)
     {
-        return simpleToken.hasOwnProperty(AuraRingCanvas.key) === true;
+        return token.hasOwnProperty(AuraRingCanvas.key) === true;
     }
     
-    static makeCanvas(simpleToken)
+    static makeCanvas(token)
     {
-        const auraRingCanvas = new AuraRingCanvas(simpleToken);
-        simpleToken[AuraRingCanvas.key] = auraRingCanvas;
+        const auraRingCanvas = new AuraRingCanvas(token);
+        token[AuraRingCanvas.key] = auraRingCanvas;
         
         return auraRingCanvas;
     }
     
-    static shouldHaveCanvas(simpleToken)
+    static shouldHaveCanvas(token)
     {
-        return AuraRingFlags.hasAuraRings(simpleToken.document);
+        return AuraRingFlags.hasAuraRings(token.document);
     }
     
     drawCanvas()
@@ -114,7 +114,7 @@ export class AuraRingCanvas
     
     refreshSight()
     {
-        this.pixiGraphics.alpha = this.simpleToken.isVisible === true ? 1 : 0;
+        this.pixiGraphics.alpha = this.token.isVisible === true ? 1 : 0;
     }
     
     // PIXI Auras Container
@@ -147,18 +147,18 @@ export class AuraRingCanvas
         this.pixiGraphics.destroy();
         this.pixiAuraContainer.destroy();
         
-        delete this.simpleToken[AuraRingCanvas.key];
+        delete this.token[AuraRingCanvas.key];
     }
     
     movePixiAuraContainer()
     {
-        this.pixiAuraContainer.position.set(this.simpleToken.x, this.simpleToken.y);
+        this.pixiAuraContainer.position.set(this.token.x, this.token.y);
     }
     
     // PIXI Graphics
     renderAuraRings()
     {
-        const auraRings = AuraRingFlags.getAuraRings(this.simpleToken.document);
+        const auraRings = AuraRingFlags.getAuraRings(this.token.document);
         
         this.movePixiAuraContainer();
         
@@ -215,12 +215,12 @@ export class AuraRingCanvas
             ? GridBased.draw(
                 this.pixiGraphics,
                 auraRing, 
-                this.simpleToken.document,
+                this.token.document,
             )
             : Euclidean.draw(
                 this.pixiGraphics,
                 auraRing,
-                this.simpleToken.document,
+                this.token.document,
                 close,
             );
 
@@ -233,13 +233,13 @@ export class AuraRingCanvas
             return false;
         }
         
-        if (this.simpleToken.document.hidden === true) {
+        if (this.token.document.hidden === true) {
             if (game.user.role !== CONST.USER_ROLES.GAMEMASTER) {
                 return false;
             }
         }
         
-        return AuraRingFlags.hasAuraRings(this.simpleToken.document) === true;
+        return AuraRingFlags.hasAuraRings(this.token.document) === true;
     }
     
     shouldRender(auraRing)
@@ -266,6 +266,13 @@ export class AuraRingCanvas
         if (game.user.hasRole(auraRing.visibility) !== true) {
             return false;
         }
+
+        if (
+            auraRing.hover_only === true
+            && this.token.hover !== true
+        ) {
+            return false;
+        }
         
         return true;
     }
@@ -273,7 +280,7 @@ export class AuraRingCanvas
     // Aura Rings
     auraOpacity(opacity)
     {
-        return this.simpleToken.document.hidden === true
+        return this.token.document.hidden === true
             ? opacity / 2
             : opacity;
     }
