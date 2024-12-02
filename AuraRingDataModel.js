@@ -10,6 +10,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             'use_grid_shapes',
             'hide',
             'hover_only',
+            'owner_only',
         ],
         [
             'radius',
@@ -41,6 +42,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             hover_only: AuraRingDataModel.hoverOnlyField(defaults.hover_only),
             id: AuraRingDataModel.idField(defaults.id),
             name: AuraRingDataModel.nameField(defaults.name),
+            owner_only: AuraRingDataModel.ownerOnlyField(defaults.owner_only),
             radius: AuraRingDataModel.radiusField(defaults.radius),
             stroke_close: AuraRingDataModel.strokeCloseField(defaults.stroke_close),
             stroke_colour: AuraRingDataModel.strokeColourField(defaults.stroke_colour),
@@ -62,6 +64,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             hover_only: false,
             id: 0,
             name: 'Aura',
+            owner_only: false,
             radius: 20,
             stroke_close: false,
             stroke_colour: '#ff0000',
@@ -224,7 +227,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
     {
         return AuraRingField.booleanField(
             AuraRingField.dataFieldOptions(
-                'Hide Aura Ring',
+                'Hide Aura Ring?',
                 initial,
             ),
             AuraRingField.dataFieldContext(
@@ -286,6 +289,20 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
         );
     }
 
+    static ownerOnlyField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Only show for owner?',
+                initial,
+                'The Aura Ring will only show for token owners, and observers.',
+            ),
+            AuraRingField.dataFieldContext(
+                'stroke_close',
+            ),
+        );
+    }
+
     static radiusField(initial)
     {
         return AuraRingField.numberField(
@@ -309,7 +326,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             AuraRingField.dataFieldOptions(
                 'Close Stroke?',
                 initial,
-                'Draw a complete outline when using an angled Aura.',
+                'Draw a complete outline when using an angled Aura Ring.',
             ),
             AuraRingField.dataFieldContext(
                 'stroke_close',
@@ -377,8 +394,9 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
     {
         return AuraRingField.booleanField(
             AuraRingField.dataFieldOptions(
-                'Use grid-based shapes, if enabled?',
+                'Use grid-based shapes?',
                 initial,
+                'Experimental; if enabled in the scene, the aura will follow the grid.'
             ),
             AuraRingField.dataFieldContext(
                 'use_grid_shapes',

@@ -273,6 +273,13 @@ export class AuraRingCanvas
         ) {
             return false;
         }
+
+        if (
+            auraRing.owner_only === true
+            && this.token.observer !== true
+        ) {
+            return false;
+        }
         
         return true;
     }
