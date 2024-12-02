@@ -9,6 +9,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             'visibility',
             'use_grid_shapes',
             'hide',
+            'hover_only',
         ],
         [
             'radius',
@@ -37,6 +38,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             fill_colour: AuraRingDataModel.fillColourField(defaults.fill_colour),
             fill_opacity: AuraRingDataModel.fillOpacityField(defaults.fill_opacity),
             hide: AuraRingDataModel.hideField(defaults.hide),
+            hover_only: AuraRingDataModel.hoverOnlyField(defaults.hover_only),
             id: AuraRingDataModel.idField(defaults.id),
             name: AuraRingDataModel.nameField(defaults.name),
             radius: AuraRingDataModel.radiusField(defaults.radius),
@@ -57,6 +59,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             fill_colour: '#000000',
             fill_opacity: 0,
             hide: false,
+            hover_only: false,
             id: 0,
             name: 'Aura',
             radius: 20,
@@ -226,6 +229,19 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             ),
             AuraRingField.dataFieldContext(
                 'hide',
+            ),
+        );
+    }
+
+    static hoverOnlyField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Only show on hover?',
+                initial,
+            ),
+            AuraRingField.dataFieldContext(
+                'hover_only',
             ),
         );
     }
