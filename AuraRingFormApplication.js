@@ -10,8 +10,10 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         actions: {
             addAuraRing: AuraRingFormApplication.handleAddAuraRing,
             changeTab: AuraRingFormApplication.handleChangeTab,
+            copyAuraRing: AuraRingFormApplication.handleCopy,
             deleteAuraRing: AuraRingFormApplication.handleDeleteAuraRing,
             duplicateAuraRing: AuraRingFormApplication.handleDuplicateAuraRing,
+            pasteAuraRing: AuraRingFormApplication.handlePaste,
             toggleHide: AuraRingFormApplication.handleToggleHide,
         },
         form: {
@@ -49,9 +51,27 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     preview;
 
     // Getters
+    /** @returns {AuraRing|null} */
+    get clipboard()
+    {
+        return JSON.parse(
+            sessionStorage.getItem(AuraRingCanvas.key),
+        );
+    }
+
     get title()
     {
         return `Aura Ring Configuration: ${this.preview.name}`;
+    }
+
+    // Setters
+    /** @param {AuraRing} auraRing */
+    set clipboard(auraRing)
+    {
+        sessionStorage.setItem(
+            AuraRingCanvas.key, 
+            JSON.stringify(auraRing),
+        );
     }
 
     // Setup
@@ -97,6 +117,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
         return {
             auraRings: dataModels,
+            clipboardEmpty: this.clipboard === null,
         };
     }
 
@@ -110,6 +131,12 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     {
         const auraId = parseInt(event.target.dataset.aura);
         this.changeTab(auraId);
+    }
+
+    static async handleCopy(event)
+    {
+        const auraId = parseInt(event.target.dataset.aura);
+        this.copyAuraRing(auraId);
     }
 
     static async handleDeleteAuraRing(event)
@@ -130,6 +157,11 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
             this.preview, 
             this.gatherFormData(formData),
         );
+    }
+
+    static async handlePaste()
+    {
+        this.pasteAuraRing();
     }
 
     static async handleRenameAuraRing(event)
@@ -158,6 +190,30 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         this.render();
     }
 
+    /**
+     * Create a clone of an Aura Ring without an ID
+     * @param {number} id 
+     * @returns {AuraRing}
+     */
+    cloneAuraRing(id)
+    {
+        const source = this.getAuraRing(id);
+        const clone = foundry.utils.deepClone(source);
+        clone.id = null;
+        clone.name = `Copy of ${source.name}`;
+        return clone;
+    }
+
+    /**
+     * Copy an Aura Ring to the clipboard
+     * @param {number} id 
+     */
+    copyAuraRing(id)
+    {
+        this.clipboard = this.cloneAuraRing(id);
+        this.render();
+    }
+
     deleteAuraRing(id)
     {
         this.auraRings.splice(
@@ -169,15 +225,15 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         this.render();
     }
 
+    /**
+     * Create a duplicate Aura Ring on this Token
+     * @param {number} id 
+     */
     duplicateAuraRing(id)
     {
-        const source = this.getAuraRing(id);
-        const clone = foundry.utils.deepClone(source);
-
+        const clone = this.cloneAuraRing(id);
         clone.id = AuraRingFlags.nextAvailableId(this.auraRings);
-        clone.name = `Copy of ${source.name}`;
         this.auraRings.push(clone);
-
         this.currentTab = clone.id;
         this.render();
     }
@@ -202,6 +258,21 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         }
 
         return false;
+    }
+
+    /**
+     * Paste an Aura Ring from the clipboard
+     */
+    pasteAuraRing()
+    {
+        const clone = this.clipboard;
+
+        if (clone !== null) {
+            clone.id = AuraRingFlags.nextAvailableId(this.auraRings);
+            this.auraRings.push(clone);
+            this.currentTab = clone.id;
+            this.render();
+        }
     }
 
     renameAuraRing(id, name)

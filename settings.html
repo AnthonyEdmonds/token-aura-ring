@@ -34,8 +34,17 @@
 
         <footer>
             <button
-                data-action="addAuraRing"
+                data-action="pasteAuraRing"
+                {{disabled clipboardEmpty}}
                 style="margin-top: 1rem; margin-bottom: 0.5rem;"
+                type="button"
+            >
+                <i class="fas fa-paste"></i> Paste Aura Ring
+            </button>
+
+            <button
+                data-action="addAuraRing"
+                style="margin-bottom: 0.5rem;"
                 type="button"
             >
                 <i class="fas fa-plus"></i> Add Aura Ring
@@ -62,12 +71,21 @@
 
                 <footer style="margin: 0; margin-top: 1rem;">
                     <button 
+                        data-action="copyAuraRing"
+                        data-aura="{{auraRing.id}}"
+                        style="margin-bottom: 0.5rem;"
+                        type="button"
+                    >
+                        <i class="fas fa-copy"></i> Copy Aura Ring
+                    </button>
+
+                    <button 
                         data-action="duplicateAuraRing"
                         data-aura="{{auraRing.id}}"
                         style="margin-bottom: 0.5rem;"
                         type="button"
                     >
-                        <i class="fas fa-copy"></i> Duplicate Aura Ring
+                        <i class="fas fa-clone"></i> Duplicate Aura Ring
                     </button>
 
                     <button

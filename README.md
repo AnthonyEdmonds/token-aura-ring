@@ -40,6 +40,12 @@ Once enabled, you can add and configure aura rings from the "Confgiure Token Aur
 
 Settings are fully previewed, and are not stored until you press "Save Changes" and "Update Token".
 
+* Press "Add Aura Ring" to create a new blank Aura Ring
+* Press "Delete Aura Ring" to delete the current Aura Ring
+* Press "Duplicate Aura Ring" to duplicate the current Aura Ring on the same Token
+* Press "Copy Aura Ring" to copy the selected Aura Ring to the clipboard
+* Press "Paste Aura Ring" on any Token to paste from the clipboard
+
 ### Stroke and fill
 
 Aura rings may be drawn as an outline, a solid fill, or both.
