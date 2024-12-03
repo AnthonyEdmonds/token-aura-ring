@@ -133,7 +133,11 @@ export class AuraRingCanvas
     {
         const container = new PIXI.Container();
         container.name = AuraRingCanvas.key;
+        container.sortLayer = 600;
         canvas.primary.addChild(container);
+
+        // TODO Tiles layer is above this one
+        // sortChildren?
         
         return container;
     }
