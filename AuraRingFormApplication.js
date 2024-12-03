@@ -104,7 +104,6 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
             this.currentTab = auraRings[0].id;
         }
 
-        const clipboard = this.clipboard;
         const dataModels = [];
 
         for (const auraRing of auraRings) {
@@ -118,8 +117,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
         return {
             auraRings: dataModels,
-            clipboardData: clipboard,
-            clipboardEmpty: clipboard === null,
+            clipboardEmpty: this.clipboard === null,
         };
     }
 
