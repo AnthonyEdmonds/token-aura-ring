@@ -135,8 +135,9 @@ All changes will trigger flag updates on the SimpleTokenDocument, and can be edi
 
 It is left up to the module developer to ensure that any set Aura Rings are valid.
 
-### Macro example
+### Macro examples
 
+#### List AuraRings
 This macro will list all of the Aura Rings on the selected token:
 
 1. Create a new `script` macro
@@ -147,6 +148,17 @@ This macro will list all of the Aura Rings on the selected token:
    );
    ```
 3. Select a token and run the macro to see a list of the Aura Rings on that token in the console
+
+#### Toggle an Aura Ring
+
+This macro will toggle an Aura Ring on and off:
+
+```javascript
+const auraRing = TokenAuraRing.get(token.document, 'My Aura', 'name');
+TokenAuraRing.setValue(token.document, auraRing.id, 'hide', !auraRing.hide)
+```
+
+Replace `'My Aura'` with the name of the Aura Ring you want to toggle.
 
 ## Issues
 
