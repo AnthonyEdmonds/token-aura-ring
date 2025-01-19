@@ -47,14 +47,7 @@ export class AuraRingCanvas
             AuraRingCanvas.getCanvas(token)?.drawCanvas();
         }
     }
-    
-    static async handleSightRefresh()
-    {
-        for (const tokenDocument of game.scenes.current.tokens) {
-            AuraRingCanvas.getCanvas(tokenDocument.object)?.refreshSight();
-        }
-    }
-    
+
     static async handleUpdateToken(tokenDocument)
     {
         if (AuraRingCanvas.isClass(tokenDocument, TokenDocument) === true) {
@@ -111,12 +104,7 @@ export class AuraRingCanvas
             this.renderAuraRings();
         }
     }
-    
-    refreshSight()
-    {
-        this.pixiGraphics.alpha = this.token.isVisible === true ? 1 : 0;
-    }
-    
+
     // PIXI Auras Container
     static findPixiAurasContainer()
     {
@@ -278,6 +266,13 @@ export class AuraRingCanvas
         if (
             auraRing.owner_only === true
             && this.token.observer !== true
+        ) {
+            return false;
+        }
+
+        if (
+            auraRing.respect_fog === true
+            && this.token.isVisible === false
         ) {
             return false;
         }

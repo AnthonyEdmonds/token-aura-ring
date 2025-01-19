@@ -14,7 +14,7 @@ Aura rings are calculated as an emanation, based on the [Pathfinder 2nd Edition 
 
 Creatures larger than 1 tile will have flattened sides to correctly represent their aura range.
 
-Visibility of aura rings are obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
+Visibility of aura rings can be obscured by fog-of-war, and hidden entirely when the viewing player is unable to see the token from which the aura rings are being emitted.
 
 Hidden tokens will only show their aura rings to the game master.
 
@@ -71,6 +71,8 @@ You can also quickly show and hide an Aura Ring by pressing the "Eye" button or 
 Enabling the "Only show on hover?" option will cause the Aura Ring to only show when the token is hovered.
 
 Enabling the "Only show to owner?" option will cause the Aura Ring to only show for the token owner and observer, which includes the Game Master.
+
+Disabling "Respect fog of war?" will cause the Aura Ring to be visible even when the player cannot see the eminating token.
 
 ### Angled aura rings
 

@@ -15,6 +15,7 @@ export class AuraRingApi
      * @property {number}   id                  The unique numeric identifier of the Aura Ring
      * @property {string}   name                The display name of the Aura Ring
      * @property {number}   radius              The radius of the Aura Ring, from 0
+     * @property {boolean}  respect_fog         Whether to hide the Aura Ring when the eminating token cannot be seen
      * @property {boolean}  stroke_close        Whether to stroke the complete outline of the Aura Ring
      * @property {string}   stroke_colour       The stroke colour in hex
      * @property {number}   stroke_opacity      The stroke opacity as a fraction between 0 and 1

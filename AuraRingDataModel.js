@@ -9,6 +9,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             'visibility',
             'use_grid_shapes',
             'hide',
+            'respect_fog',
             'hover_only',
             'owner_only',
         ],
@@ -44,6 +45,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             name: AuraRingDataModel.nameField(defaults.name),
             owner_only: AuraRingDataModel.ownerOnlyField(defaults.owner_only),
             radius: AuraRingDataModel.radiusField(defaults.radius),
+            respect_fog: AuraRingDataModel.respectFogField(defaults.respect_fog),
             stroke_close: AuraRingDataModel.strokeCloseField(defaults.stroke_close),
             stroke_colour: AuraRingDataModel.strokeColourField(defaults.stroke_colour),
             stroke_opacity: AuraRingDataModel.strokeOpacityField(defaults.stroke_opacity),
@@ -66,6 +68,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             name: 'Aura',
             owner_only: false,
             radius: 20,
+            respect_fog: true,
             stroke_close: false,
             stroke_colour: '#ff0000',
             stroke_opacity: 0.75,
@@ -316,6 +319,19 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             ),
             AuraRingField.numberFieldParams(
                 null,
+            ),
+        );
+    }
+
+    static respectFogField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Respect fog of war?',
+                initial,
+            ),
+            AuraRingField.dataFieldContext(
+                'respect_fog',
             ),
         );
     }
