@@ -1,23 +1,26 @@
 import { AuraRingCanvas } from "./AuraRingCanvas.js";
 import { AuraRingDataModel } from "./AuraRingDataModel.js"
+import { AuraRingDirectory } from "./AuraRingDirectory.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
-export class AuraRingFormApplication extends HandlebarsApplicationMixin(ApplicationV2)
+export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
 {
     static DEFAULT_OPTIONS = {
         actions: {
-            addAuraRing: AuraRingFormApplication.handleAddAuraRing,
-            changeTab: AuraRingFormApplication.handleChangeTab,
-            copyAuraRing: AuraRingFormApplication.handleCopy,
-            deleteAuraRing: AuraRingFormApplication.handleDeleteAuraRing,
-            duplicateAuraRing: AuraRingFormApplication.handleDuplicateAuraRing,
-            pasteAuraRing: AuraRingFormApplication.handlePaste,
-            toggleHide: AuraRingFormApplication.handleToggleHide,
+            addAuraRing: AuraRingSettings.handleAddAuraRing,
+            changeTab: AuraRingSettings.handleChangeTab,
+            copyAuraRing: AuraRingSettings.handleCopy,
+            deleteAuraRing: AuraRingSettings.handleDeleteAuraRing,
+            duplicateAuraRing: AuraRingSettings.handleDuplicateAuraRing,
+            openDirectory: AuraRingSettings.handleOpenDirectory,
+            pasteAuraRing: AuraRingSettings.handlePaste,
+            saveToDirectory: AuraRingSettings.handleSaveToDirectory,
+            toggleHide: AuraRingSettings.handleToggleHide,
         },
         form: {
-            handler: AuraRingFormApplication.handleForm,
+            handler: AuraRingSettings.handleForm,
             submitOnChange: false,
             closeOnSubmit: true,
         },
@@ -99,7 +102,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
 
     _prepareContext(options)
     {
-        const auraRings = this.auraRings.sort(this.sortAuraRings);
+        const auraRings = this.auraRings.sort(AuraRingSettings.sortAuraRings);
         if (this.currentTab === null && auraRings.length > 0) {
             this.currentTab = auraRings[0].id;
         }
@@ -119,6 +122,44 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
             auraRings: dataModels,
             clipboardEmpty: this.clipboard === null,
         };
+    }
+
+    static register(config)
+    {
+        const formApplication = new AuraRingSettings(config.preview);
+    
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-ring');
+
+        const text = document.createTextNode(' Configure Token Aura Rings');
+
+        const button = document.createElement('button');
+        button.append(icon, text);
+        button.style.whiteSpace = 'nowrap';
+        button.type = 'button';
+        button.addEventListener('click', formApplication.render.bind(formApplication, true));
+
+        const formGroup = document.createElement('div');
+        formGroup.classList.add('form-group');
+        formGroup.append(button);
+
+        config.form.children[1].appendChild(formGroup);
+        config.form.parentElement.parentElement.style.height = 'auto';
+    }
+
+    static sortAuraRings(first, second) {
+        const firstName = first.name.toLowerCase();
+        const secondName = second.name.toLowerCase();
+
+        if (firstName < secondName) {
+            return -1;
+        }
+
+        if (firstName > secondName) {
+            return 1;
+        }
+
+        return 0;
     }
 
     // Handlers
@@ -159,6 +200,11 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         );
     }
 
+    static async handleOpenDirectory()
+    {
+        AuraRingDirectory.open(this.preview);
+    }
+
     static async handlePaste()
     {
         this.pasteAuraRing();
@@ -168,6 +214,13 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
     {
         const auraId = parseInt(event.target.dataset.aura);
         this.renameAuraRing(auraId, event.target.value);
+    }
+
+    static async handleSaveToDirectory(event)
+    {
+        const auraId = parseInt(event.target.dataset.aura);
+        const auraRing = this.getAuraRing(auraId);
+        AuraRingDirectory.put(auraRing);
     }
 
     static async handleToggleHide(event)
@@ -282,18 +335,6 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         this.render();
     }
 
-    sortAuraRings(first, second) {
-        if (first.name < second.name) {
-            return -1;
-        }
-
-        if (first.name > second.name) {
-            return 1;
-        }
-
-        return 0;
-    }
-
     toggleHideAuraRing(id)
     {
         const index = this.getAuraRingIndex(id);
@@ -338,7 +379,7 @@ export class AuraRingFormApplication extends HandlebarsApplicationMixin(Applicat
         for (const input of inputs) {
             input.addEventListener(
                 'change', 
-                AuraRingFormApplication.handleRenameAuraRing.bind(this),
+                AuraRingSettings.handleRenameAuraRing.bind(this),
             );
         }
     }

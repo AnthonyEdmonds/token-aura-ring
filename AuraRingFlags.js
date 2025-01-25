@@ -11,6 +11,7 @@ export class AuraRingFlags
     {
         if (AuraRingFlags.hasAuraRings(tokenDocument) === false) {
             AuraRingFlags.setAuraRings(tokenDocument, []);
+            return [];
         }
 
         return tokenDocument.getFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey);

@@ -1,0 +1,74 @@
+<div class="scrollable flexcol" style="flex: 1;">
+    <main style="flex: 1;">
+        <h4 style="border-bottom: 1px solid var(--color-underline-active);">Selected Token</h4>
+
+        {{#if hasTokens}}
+            <select id="tokenAuraRingDirectoryTokenSelector" name="token">
+                <option
+                    disabled
+                    {{#if noTokenSelected}}selected{{/if}}
+                    value=""
+                >Select a token...</option>
+
+                {{#each tokens as |token|}}
+                    <option
+                        data-action="changeToken"
+                        {{#if token.selected}}selected{{/if}}
+                        value="{{token.id}}"
+                    >{{token.name}}</option>
+                {{/each}}
+            </select>
+
+            <p class="hint">Select the token to add Aura Rings to.</p>
+        {{else}}
+            <p>There are no Tokens in the current scene.</p>
+            <p>Add a Token to the scene and reload the Directory.</p>
+        {{/if}}
+
+        <h4 style="border-bottom: 1px solid var(--color-underline-active);">Saved Aura Rings</h4>
+
+        <ul style="display:flex; flex-direction: column; list-style-type: none; padding-left: 0; margin: 0;">
+            {{#each auraRings as |auraRing|}}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-light-3)">
+                    <span>{{auraRing.name}}</span>
+
+                    <div style="display: flex; flex: 0; align-items: center; margin-left: 1rem;">
+                        <button
+                            class="fas fa-plus"
+                            data-action="add"
+                            data-aura="{{auraRing.name}}"
+                            style="flex: 0; padding: 3px; margin-left: 3px;"
+                            type="button"
+                            title="Add to selected token"
+                        />
+                        <button
+                            class="fas fa-pencil"
+                            data-action="rename"
+                            data-aura="{{auraRing.name}}"
+                            style="flex: 0; padding: 3px; margin-left: 3px;"
+                            type="button"
+                            title="Rename..."
+                        />
+                        <button
+                            class="fas fa-trash"
+                            data-action="remove"
+                            data-aura="{{auraRing.name}}"
+                            style="flex: 0; padding: 3px; margin-left: 3px;"
+                            type="button"
+                            title="Remove from directory"
+                        />
+                    </div>
+                </li>
+            {{else}}
+                <p>No Aura Rings have been saved to the directory.</p>
+                <p>You can save an Aura Ring to the directory from the token's Aura Ring Configuration menu.</p>
+            {{/each}}
+        </ul>
+    </main>
+
+    <footer>
+        <button data-action="close">
+            <i class="fas fa-times"></i> Close Directory
+        </button>
+    </footer>
+</div>

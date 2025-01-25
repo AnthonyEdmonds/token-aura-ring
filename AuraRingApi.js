@@ -1,4 +1,5 @@
 import { AuraRingDataModel } from "./AuraRingDataModel.js";
+import { AuraRingDirectory } from "./AuraRingDirectory.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
 export class AuraRingApi
@@ -71,6 +72,16 @@ export class AuraRingApi
     static deleteAll(tokenDocument)
     {
         AuraRingFlags.setAuraRings(tokenDocument, []);
+    }
+
+    /**
+     * Open the Aura Ring Directory
+     * 
+     * @param {TokenDocument|null} tokenDocument
+     */
+    static directory(tokenDocument = null)
+    {
+        AuraRingDirectory.open(tokenDocument);
     }
 
     /**
@@ -167,7 +178,7 @@ export class AuraRingApi
     }
 
     /**
-     * Overwrite an Aura Ring with new settings
+     * Add or overwrite an Aura Ring
      * 
      * @param {TokenDocument} tokenDocument 
      * @param {AuraRing} auraRing
@@ -177,9 +188,9 @@ export class AuraRingApi
         const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
         const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
 
-        if (index !== false) {
-            auraRings.splice(index, 1);
-        }
+        index !== false
+            ? auraRings.splice(index, 1)
+            : auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
 
         auraRings.push(auraRing);
         AuraRingFlags.setAuraRings(tokenDocument, auraRings);
