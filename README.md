@@ -131,7 +131,7 @@ You can also open the Directory using a macro, which is provided in the `API` se
 
 ### Applying Aura Rings
 
-You can pick which token to add Aura Rings to from the dropdown, which lists all tokens and token previews in the current scene.
+You can pick which token to add Aura Rings to from the dropdown, which lists all tokens in the current scene.
 
 If the Directory was opened from an Aura Ring Configuration screen, the current token preview will be automatically selected.
 
