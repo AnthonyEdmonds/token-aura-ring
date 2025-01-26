@@ -78,10 +78,31 @@ export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
     }
 
     // Setup
-    constructor(simpleTokenDocument, options={}) {
+    constructor(simpleTokenDocument, options = {}) {
         super(options);
+        this.registerHooks();
         this.preview = simpleTokenDocument;
         this.auraRings = AuraRingFlags.getAuraRings(this.preview);
+    }
+
+    async close(options = {})
+    {
+        this.deregisterHooks();
+        return super.close(options);
+    }
+
+    registerHooks()
+    {
+        Hooks.on(AuraRingFlags.hook, this.renderDirectory);
+    }
+
+    renderDirectory = () => {
+        this.render();
+    }
+
+    deregisterHooks()
+    {
+        Hooks.off(AuraRingFlags.hook, this.renderDirectory);
     }
 
     _onChangeForm(context, event)

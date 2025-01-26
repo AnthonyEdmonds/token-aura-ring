@@ -4,6 +4,8 @@ export class AuraRingFlags
 {
     static auraRingsKey = 'aura-rings';
 
+    static hook = 'flags-updated';
+
     static namespace = 'token-aura-ring';
 
     // Flags
@@ -26,9 +28,19 @@ export class AuraRingFlags
         return tokenDocument.flags[AuraRingFlags.namespace].hasOwnProperty(AuraRingFlags.auraRingsKey) === true;
     }
 
-    static setAuraRings(tokenDocument, auraRings)
+    /**
+     * Set the TokenDocument's Aura Ring Flag
+     * @param {TokenDocument} tokenDocument 
+     * @param {AuraRing} auraRings 
+     * @param {boolean} directly Whether to set the flag directly, to avoid re-rendering
+     */
+    static setAuraRings(tokenDocument, auraRings, directly = false)
     {
-        tokenDocument.setFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey, auraRings);
+        directly === true
+            ? tokenDocument.flags[AuraRingFlags.namespace][AuraRingFlags.auraRingsKey] = auraRings
+            : tokenDocument.setFlag(AuraRingFlags.namespace, AuraRingFlags.auraRingsKey, auraRings);
+
+        Hooks.call(AuraRingFlags.hook);
     }
 
     // Auras

@@ -185,15 +185,26 @@ export class AuraRingApi
      */
     static set(tokenDocument, auraRing)
     {
-        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
-        const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
+        const isPreview = tokenDocument.object.hasPreview === true;
 
-        index !== false
-            ? auraRings.splice(index, 1)
-            : auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
+        if (isPreview === true) {
+            tokenDocument = tokenDocument.object._preview.document;
+        }
+
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
+
+        if (auraRing.id === null) {
+            auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
+        } else {
+            const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
+
+            index !== false
+                ? auraRings.splice(index, 1)
+                : auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
+        }
 
         auraRings.push(auraRing);
-        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings, isPreview);
     }
 
     /**

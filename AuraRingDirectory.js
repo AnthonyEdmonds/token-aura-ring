@@ -41,15 +41,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
 
     static hook = 'directory-update';
 
-    hooks = {
-        createToken: null,
-        destroyToken: null,
-        settings: null,
-    };
-
     selectedTokenId = null;
-
-    // TODO Limit directory scroll height
 
     // Setup
     constructor(tokenDocument = null, options={}) {
@@ -57,6 +49,30 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
 
         this.registerHooks();
         this.selectedTokenId = tokenDocument?.id ?? null;
+    }
+
+    async close(options = {})
+    {
+        this.deregisterHooks();
+        return super.close(options);
+    }
+
+    registerHooks()
+    {
+        Hooks.on('createToken', this.renderDirectory);
+        Hooks.on('destroyToken', this.renderDirectory);
+        Hooks.on(AuraRingDirectory.hook, this.renderDirectory);
+    }
+
+    renderDirectory = () => {
+        this.render();
+    }
+
+    deregisterHooks()
+    {
+        Hooks.off('createToken', this.renderDirectory);
+        Hooks.off('destroyToken', this.renderDirectory);
+        Hooks.off(AuraRingDirectory.hook, this.renderDirectory);
     }
 
     _onRender(context, options)
@@ -72,10 +88,16 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
         const tokens = [];
 
         for (let index = 0; index < tokenDocuments.length; ++index) {
+            const token = tokenDocuments[index];
+
+            if (token.isOwner === false) {
+                continue;
+            }
+
             tokens.push({
-                id: tokenDocuments[index].id,
-                name: tokenDocuments[index].name,
-                selected: tokenDocuments[index].id === this.selectedTokenId,
+                id: token.id,
+                name: token.name,
+                selected: token.id === this.selectedTokenId,
             })
         }
 
@@ -87,12 +109,6 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
             noTokenSelected: this.selectedTokenId === null,
             tokens: tokens,
         };
-    }
-
-    async close(options = {})
-    {
-        this.deregisterHooks();
-        super.close(options);
     }
 
     static register() 
@@ -107,20 +123,14 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
                 Hooks.call(AuraRingDirectory.hook);
             },
         });
-    }
 
-    registerHooks()
-    {
-        this.hooks.createToken = Hooks.on('createToken', this.render.bind(this));
-        this.hooks.destroyToken = Hooks.on('destroyToken', this.render.bind(this));
-        this.hooks.settings = Hooks.on(AuraRingDirectory.hook, this.render.bind(this));
-    }
-
-    deregisterHooks()
-    {
-        Hooks.off('createToken', this.hooks.createToken);
-        Hooks.off('destroyToken', this.hooks.destroyToken);
-        Hooks.off(AuraRingDirectory.hook, this.hooks.settings);
+        game.settings.registerMenu(AuraRingFlags.namespace, 'open-directory', {
+            name: "Aura Ring Directory",
+            label: "Open...",
+            hint: "Open the Aura Ring Directory to apply and manage your stored Aura Rings.",
+            icon: "fas fa-folder-open",
+            type: AuraRingDirectory,
+        });
     }
 
     // Handlers
@@ -175,9 +185,6 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
         const tokenDocument = game.scenes.current.tokens.get(tokenId);
 
         AuraRingApi.set(tokenDocument, auraRing);
-
-        // TODO May need to handle previews differently
-        // Correct. Currently causes preview to desync from original
     }
 
     /**
@@ -196,11 +203,16 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
      */
     static get(name)
     {
-        return AuraRingApi.getAuraRing(
+        let auraRing =  AuraRingApi.getAuraRing(
             AuraRingDirectory.all(),
             name,
             'name',
         );
+
+        auraRing = foundry.utils.deepClone(auraRing);
+        auraRing.id = null;
+
+        return auraRing;
     }
 
     /**
