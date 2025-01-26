@@ -1,28 +1,9 @@
 import { AuraRingCanvas } from './AuraRingCanvas.js';
-import { AuraRingFormApplication } from './AuraRingFormApplication.js';
+import { AuraRingSettings } from './AuraRingSettings.js';
 import { AuraRingApi } from './AuraRingApi.js';
+import { AuraRingDirectory } from './AuraRingDirectory.js';
 
-Hooks.on('renderTokenConfig', function (config) {
-    const formApplication = new AuraRingFormApplication(config.preview);
-    
-    const icon = document.createElement('i');
-    icon.classList.add('fas', 'fa-ring');
-
-    const text = document.createTextNode(' Configure Token Aura Rings');
-
-    const button = document.createElement('button');
-    button.append(icon, text);
-    button.style.whiteSpace = 'nowrap';
-    button.type = 'button';
-    button.addEventListener('click', formApplication.render.bind(formApplication, true));
-
-    const formGroup = document.createElement('div');
-    formGroup.classList.add('form-group');
-    formGroup.append(button);
-
-    config.form.children[1].appendChild(formGroup);
-    config.form.parentElement.parentElement.style.height = 'auto';
-});
+Hooks.on('renderTokenConfig', AuraRingSettings.register);
 
 /**
  * Auras can only be drawn once vision has been established
@@ -48,5 +29,6 @@ Hooks.on('initializeVisionSources', function () {
  * Add the AuraRingApi to the window
  */
 Hooks.on('init', function () {
+    AuraRingDirectory.register();
     globalThis.TokenAuraRing = AuraRingApi;
 });

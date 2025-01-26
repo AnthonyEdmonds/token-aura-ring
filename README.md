@@ -1,6 +1,6 @@
 # Token Aura Ring
 
-A simple module for Foundry VTT which adds outlined aura rings to a token.
+A module for Foundry VTT which adds outlined aura rings to a token.
 
 ![How token aura rings appear to the game master](images/gm.jpg)
 
@@ -41,10 +41,13 @@ Once enabled, you can add and configure aura rings from the "Confgiure Token Aur
 Settings are fully previewed, and are not stored until you press "Save Changes" and "Update Token".
 
 * Press "Add Aura Ring" to create a new blank Aura Ring
-* Press "Delete Aura Ring" to delete the current Aura Ring
-* Press "Duplicate Aura Ring" to duplicate the current Aura Ring on the same Token
-* Press "Copy Aura Ring" to copy the selected Aura Ring to the clipboard
+* Press "Open Directory..." to view your stored Aura Rings
 * Press "Paste Aura Ring" on any Token to paste from the clipboard
+* Press "Save Changes" to save your Aura Rings
+* Press "Duplicate Aura Ring" to duplicate the current Aura Ring on the same Token
+* Press "Save to Directory" to store the current Aura Ring in the Directory
+* Press "Copy Aura Ring" to copy the current Aura Ring to the clipboard
+* Press "Delete Aura Ring" to delete the current Aura Ring
 
 ### Stroke and fill
 
@@ -114,6 +117,36 @@ This will only work with tokens which feature transparency, and is limited by th
 
 For example, a standard medium creature (1 square = 5 foot) can have a minimum radius of -2.49 feet.
 
+## Directory
+
+A global Aura Ring Directory is provided to allow for defining Aura Rings for use across many tokens.
+
+![An example of the Aura Ring Directory](images/directory.jpg)
+
+### Opening the Directory
+
+A button to open the Aura Ring Directory is provided in the main "Configure Settings" and on Aura Ring Configuration screens.
+
+You can also open the Directory using a macro, which is provided in the `API` section.
+
+### Applying Aura Rings
+
+You can pick which token to add Aura Rings to from the dropdown, which lists all tokens and token previews in the current scene.
+
+If the Directory was opened from an Aura Ring Configuration screen, the current token preview will be automatically selected.
+
+Pressing the "Add" button will copy the Aura Ring from the directory onto the selected token.
+
+You can also rename and remove any Aura Rings from the directory.
+
+### Library Management
+
+To overwrite an existing Aura Ring, save an Aura Ring with the same name.
+
+You will be prompted to change the name, in case you did not intend to overwrite an existing Aura Ring.
+
+Pressing the "Remove" button will immediately delete that Aura Ring from the Directory.
+
 ## API
 
 Module developers can control Aura Rings using the `AuraRingApi` class.
@@ -126,10 +159,11 @@ Macro developers can control Aura Rings using the `TokenAuraRing` global variabl
 | blank     |                                   | AuraRing         | Get an unsaved empty Aura Ring without an ID |
 | delete    | TokenDocument, id                 |                  | Remove an Aura Ring |
 | deleteAll | TokenDocument                     |                  | Remove all Aura Rings |
+| directory | TokenDocument|null                |                  | Open the Aura Ring Directory, optionally with a pre-selected token |
 | get       | TokenDocument, term, field = 'id' | AuraRing\|false  | Retrieve a specific Aura Ring by a field, ID by default |
 | index     | TokenDocument                     | Object{id: name} | Retrieve a list of Aura Ring names keyed by their ID |
 | new       | TokenDocument                     | AuraRing         | Create a new Aura Ring from the default settings |
-| set       | TokenDocument, AuraRing           |                  | Overwrite an Aura Ring with new settings |
+| set       | TokenDocument, AuraRing           |                  | Add or overwrite an Aura Ring |
 | setAll    | TokenDocument, Array[AuraRing]    |                  | Overwrite all Aura Rings with a new set |
 | setValue  | TokenDocument, id, key, value     |                  | Update a specific Aura Ring value directly |
 
@@ -161,6 +195,14 @@ TokenAuraRing.setValue(token.document, auraRing.id, 'hide', !auraRing.hide)
 ```
 
 Replace `'My Aura'` with the name of the Aura Ring you want to toggle.
+
+#### Open the Directory
+
+This macro will open the Aura Ring Directory:
+
+```javascript
+TokenAuraRing.directory();
+```
 
 ## Issues
 

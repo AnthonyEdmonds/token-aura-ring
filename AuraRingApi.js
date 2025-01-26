@@ -1,4 +1,5 @@
 import { AuraRingDataModel } from "./AuraRingDataModel.js";
+import { AuraRingDirectory } from "./AuraRingDirectory.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
 
 export class AuraRingApi
@@ -71,6 +72,16 @@ export class AuraRingApi
     static deleteAll(tokenDocument)
     {
         AuraRingFlags.setAuraRings(tokenDocument, []);
+    }
+
+    /**
+     * Open the Aura Ring Directory
+     * 
+     * @param {TokenDocument|null} tokenDocument
+     */
+    static directory(tokenDocument = null)
+    {
+        AuraRingDirectory.open(tokenDocument);
     }
 
     /**
@@ -167,22 +178,33 @@ export class AuraRingApi
     }
 
     /**
-     * Overwrite an Aura Ring with new settings
+     * Add or overwrite an Aura Ring
      * 
      * @param {TokenDocument} tokenDocument 
      * @param {AuraRing} auraRing
      */
     static set(tokenDocument, auraRing)
     {
-        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
-        const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
+        const isPreview = tokenDocument.object.hasPreview === true;
 
-        if (index !== false) {
-            auraRings.splice(index, 1);
+        if (isPreview === true) {
+            tokenDocument = tokenDocument.object._preview.document;
+        }
+
+        const auraRings = AuraRingFlags.getAuraRings(tokenDocument);
+
+        if (auraRing.id === null) {
+            auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
+        } else {
+            const index = AuraRingApi.getAuraRingIndex(auraRings, auraRing.id);
+
+            index !== false
+                ? auraRings.splice(index, 1)
+                : auraRing.id = AuraRingFlags.nextAvailableId(auraRings);
         }
 
         auraRings.push(auraRing);
-        AuraRingFlags.setAuraRings(tokenDocument, auraRings);
+        AuraRingFlags.setAuraRings(tokenDocument, auraRings, isPreview);
     }
 
     /**
