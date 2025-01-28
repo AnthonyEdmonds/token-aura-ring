@@ -209,6 +209,10 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
             'name',
         );
 
+        if (auraRing === false) {
+            return false;
+        }
+
         auraRing = foundry.utils.deepClone(auraRing);
         auraRing.id = null;
 
