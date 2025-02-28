@@ -2,6 +2,10 @@ import { AuraRingCanvas } from './AuraRingCanvas.js';
 import { AuraRingSettings } from './AuraRingSettings.js';
 import { AuraRingApi } from './AuraRingApi.js';
 import { AuraRingDirectory } from './AuraRingDirectory.js';
+import {AuraRings} from './AuraRings.js';
+
+let test = new AuraRings;
+console.warn(test);
 
 Hooks.on('renderTokenConfig', AuraRingSettings.register);
 

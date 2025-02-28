@@ -1,6 +1,7 @@
 import { AuraRingFlags } from "./AuraRingFlags.js";
 import { Euclidean } from "./Euclidean.js";
 import { GridBased } from "./GridBased.js";
+import { Square } from "./Square.js";
 
 export class AuraRingCanvas
 {
@@ -200,18 +201,29 @@ export class AuraRingCanvas
     {
         this.pixiGraphics.startPoly();
 
-        this.useGridShapes(auraRing) === true
-            ? GridBased.draw(
-                this.pixiGraphics,
-                auraRing, 
-                this.token.document,
-            )
-            : Euclidean.draw(
+        if (auraRing.is_square === true) {
+            Square.draw(
                 this.pixiGraphics,
                 auraRing,
                 this.token.document,
                 close,
             );
+
+        } else if (this.useGridShapes(auraRing) === true) {
+            GridBased.draw(
+                this.pixiGraphics,
+                auraRing, 
+                this.token.document,
+            );
+
+        } else {
+            Euclidean.draw(
+                this.pixiGraphics,
+                auraRing,
+                this.token.document,
+                close,
+            );
+        }
 
         this.pixiGraphics.finishPoly();
     }
