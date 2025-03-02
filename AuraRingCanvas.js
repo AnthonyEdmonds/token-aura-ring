@@ -34,6 +34,10 @@ export class AuraRingCanvas
     }
     
     // Handlers
+    /**
+     * Handle the "destroyToken" hook
+     * @param {Token} token 
+     */
     static async handleDestroyToken(token)
     {
         if (AuraRingCanvas.isClass(token, Token) === true) {
@@ -41,6 +45,10 @@ export class AuraRingCanvas
         }
     }
     
+    /**
+     * Handle the "refreshToken" hook
+     * @param {Token} token 
+     */
     static async handleRefreshToken(token)
     {
         if (AuraRingCanvas.isClass(token, Token) === true) {
@@ -48,6 +56,10 @@ export class AuraRingCanvas
         }
     }
 
+    /**
+     * Handle the "updateToken" hook
+     * @param {TokenDocument} tokenDocument
+     */
     static async handleUpdateToken(tokenDocument)
     {
         if (AuraRingCanvas.isClass(tokenDocument, TokenDocument) === true) {

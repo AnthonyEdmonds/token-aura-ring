@@ -2,6 +2,7 @@ import { AuraRingCanvas } from "./AuraRingCanvas.js";
 import { AuraRingDataModel } from "./AuraRingDataModel.js"
 import { AuraRingDirectory } from "./AuraRingDirectory.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
+import { AuraRing } from "./AuraRing.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
@@ -24,7 +25,7 @@ export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
             submitOnChange: false,
             closeOnSubmit: true,
         },
-        id: `${AuraRingFlags.namespace}-{id}`,
+        id: `${AuraRing.namespace}-{id}`,
         position: {
             height: 640,
             width: 640,

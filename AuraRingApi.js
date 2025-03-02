@@ -1,36 +1,16 @@
 import { AuraRingDataModel } from "./AuraRingDataModel.js";
 import { AuraRingDirectory } from "./AuraRingDirectory.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
+import { AuraRing } from "./AuraRing.js";
 
 export class AuraRingApi
 {
-    /**
-     * TODO Make an actual class
-     * A Token Aura Ring
-     * @typedef  {Object}   AuraRing
-     * @property {number}   angle               How wide the Aura Ring should be, from 5 to 360 degrees
-     * @property {number}   direction           Which way the Aura Ring should face, from -180 to 180 degrees
-     * @property {string}   fill_colour         The fill colour in hex
-     * @property {number}   fill_opacity        The fill opacity as a fraction between 0 and 1
-     * @property {boolean}  hide                Whether the Aura Ring should be shown
-     * @property {number}   id                  The unique numeric identifier of the Aura Ring
-     * @property {string}   name                The display name of the Aura Ring
-     * @property {number}   radius              The radius of the Aura Ring, from 0
-     * @property {boolean}  respect_fog         Whether to hide the Aura Ring when the eminating token cannot be seen
-     * @property {boolean}  stroke_close        Whether to stroke the complete outline of the Aura Ring
-     * @property {string}   stroke_colour       The stroke colour in hex
-     * @property {number}   stroke_opacity      The stroke opacity as a fraction between 0 and 1
-     * @property {number}   stroke_weight       The stroke weight in pixels, from 0
-     * @property {boolean}  use_grid_shapes     Whether to use grid shapes, if enabled
-     * @property {string}   visibility          Which user roles can see the Aura Ring
-     */
-
     /**
      * Retrieve all Aura Rings
      * 
      * @param {TokenDocument} tokenDocument
      * 
-     * @returns {Array[AuraRing]}
+     * @returns {AuraRing[]}
      */
     static all(tokenDocument)
     {
@@ -50,7 +30,7 @@ export class AuraRingApi
     /**
      * Remove an Aura Ring
      * 
-     * @param {TokenDocument*} tokenDocument
+     * @param {TokenDocument} tokenDocument
      * @param {number} id
      */
     static delete(tokenDocument, id)
@@ -211,7 +191,7 @@ export class AuraRingApi
      * Overwrite all Aura Rings with a new set
      * 
      * @param {TokenDocument} tokenDocument 
-     * @param {Array[AuraRing]} auraRings 
+     * @param {AuraRing[]} auraRings 
      */
     static setAll(tokenDocument, auraRings)
     {

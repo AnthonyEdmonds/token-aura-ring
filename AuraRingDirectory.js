@@ -1,5 +1,5 @@
+import { AuraRing } from "./AuraRing.js";
 import { AuraRingApi } from "./AuraRingApi.js";
-import { AuraRingFlags } from "./AuraRingFlags.js";
 import { AuraRingSettings } from "./AuraRingSettings.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
@@ -17,7 +17,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
             submitOnChange: false,
             closeOnSubmit: false,
         },
-        id: `${AuraRingFlags.namespace}-${AuraRingDirectory.name}`,
+        id: `${AuraRing.namespace}-${AuraRingDirectory.name}`,
         position: {
             height: 640,
             width: 320,
@@ -113,7 +113,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
 
     static register() 
     {
-        game.settings.register(AuraRingFlags.namespace, AuraRingDirectory.name, {
+        game.settings.register(AuraRing.namespace, AuraRingDirectory.name, {
             name: 'Test',
             scope: 'world',
             config: false,
@@ -124,7 +124,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
             },
         });
 
-        game.settings.registerMenu(AuraRingFlags.namespace, 'open-directory', {
+        game.settings.registerMenu(AuraRing.namespace, 'open-directory', {
             name: "Aura Ring Directory",
             label: "Open...",
             hint: "Open the Aura Ring Directory to apply and manage your stored Aura Rings.",
@@ -193,7 +193,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
      */
     static all()
     {
-        return game.settings.get(AuraRingFlags.namespace, AuraRingDirectory.name);
+        return game.settings.get(AuraRing.namespace, AuraRingDirectory.name);
     }
 
     /**
@@ -310,7 +310,7 @@ export class AuraRingDirectory extends HandlebarsApplicationMixin(ApplicationV2)
     static set(auraRings)
     {
         auraRings.sort(AuraRingSettings.sortAuraRings);
-        game.settings.set(AuraRingFlags.namespace, AuraRingDirectory.name, auraRings);
+        game.settings.set(AuraRing.namespace, AuraRingDirectory.name, auraRings);
     }
 
     // Dialog

@@ -1,4 +1,4 @@
-import { AuraRingField, BooleanField } from "./AuraRingField.js";
+import { AuraRingField } from "./AuraRingField.js";
 
 export class AuraRingDataModel extends foundry.abstract.DataModel 
 {
