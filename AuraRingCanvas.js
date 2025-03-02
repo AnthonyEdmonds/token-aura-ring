@@ -1,3 +1,4 @@
+import { AuraRingActiveEffects } from "./AuraRingActiveEffects.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
 import { Euclidean } from "./Euclidean.js";
 import { GridBased } from "./GridBased.js";
@@ -34,6 +35,10 @@ export class AuraRingCanvas
     }
     
     // Handlers
+    /**
+     * Handle the "destroyToken" hook
+     * @param {Token} token 
+     */
     static async handleDestroyToken(token)
     {
         if (AuraRingCanvas.isClass(token, Token) === true) {
@@ -41,6 +46,10 @@ export class AuraRingCanvas
         }
     }
     
+    /**
+     * Handle the "refreshToken" hook
+     * @param {Token} token 
+     */
     static async handleRefreshToken(token)
     {
         if (AuraRingCanvas.isClass(token, Token) === true) {
@@ -48,6 +57,10 @@ export class AuraRingCanvas
         }
     }
 
+    /**
+     * Handle the "updateToken" hook
+     * @param {TokenDocument} tokenDocument
+     */
     static async handleUpdateToken(tokenDocument)
     {
         if (AuraRingCanvas.isClass(tokenDocument, TokenDocument) === true) {
@@ -148,10 +161,13 @@ export class AuraRingCanvas
     renderAuraRings()
     {
         const auraRings = AuraRingFlags.getAuraRings(this.token.document);
+        const effectsIndex = AuraRingActiveEffects.index(this.token.document);
         
         this.movePixiAuraContainer();
         
-        for (const auraRing of auraRings) {
+        for (let auraRing of auraRings) {
+            auraRing = AuraRingActiveEffects.apply(auraRing, effectsIndex);
+
             if (this.shouldRender(auraRing) !== true) {
                 continue;
             }
