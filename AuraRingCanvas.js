@@ -1,3 +1,4 @@
+import { AuraRingActiveEffects } from "./AuraRingActiveEffects.js";
 import { AuraRingFlags } from "./AuraRingFlags.js";
 import { Euclidean } from "./Euclidean.js";
 import { GridBased } from "./GridBased.js";
@@ -160,10 +161,13 @@ export class AuraRingCanvas
     renderAuraRings()
     {
         const auraRings = AuraRingFlags.getAuraRings(this.token.document);
+        const effectsIndex = AuraRingActiveEffects.index(this.token.document);
         
         this.movePixiAuraContainer();
         
-        for (const auraRing of auraRings) {
+        for (let auraRing of auraRings) {
+            auraRing = AuraRingActiveEffects.apply(auraRing, effectsIndex);
+
             if (this.shouldRender(auraRing) !== true) {
                 continue;
             }

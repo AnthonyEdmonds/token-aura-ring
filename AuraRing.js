@@ -17,7 +17,7 @@ export class AuraRing
     fill_opacity = 0;
 
     /** @type {boolean} Whether the Aura Ring should be shown */
-    hide = 0;
+    hide = false;
 
     /** @type {boolean} Whether the Aura Ring should only show when hovered */
     hover_only = false;
