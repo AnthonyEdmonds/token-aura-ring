@@ -25,6 +25,9 @@ export class AuraRing
     /** @type {number} The unique numeric identifier of the Aura Ring */
     id = 0;
 
+    /** @type {boolean} Whether the Aura Ring is square */
+    is_square = false;
+
     /** @type {string} The display name of the Aura Ring */
     name = 'Aura';
 

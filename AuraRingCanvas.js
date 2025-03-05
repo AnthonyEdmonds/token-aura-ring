@@ -154,7 +154,10 @@ export class AuraRingCanvas
     
     movePixiAuraContainer()
     {
-        this.pixiAuraContainer.position.set(this.token.x, this.token.y);
+        this.pixiAuraContainer.position.set(
+            this.token.x + this.token.w / 2,
+            this.token.y + this.token.h / 2,
+        );
     }
     
     // PIXI Graphics
@@ -222,12 +225,18 @@ export class AuraRingCanvas
                 auraRing, 
                 this.token.document,
             )
-            : Euclidean.draw(
-                this.pixiGraphics,
-                auraRing,
-                this.token.document,
-                close,
-            );
+            : Euclidean.draw(this.pixiGraphics, auraRing, this.token, close);
+
+         // TODO Rotate
+
+        console.warn(
+            this.pixiGraphics,
+            this.pixiGraphics.currentPath
+        );
+
+        this.pixiGraphics.currentPath.transform({
+            rotation: auraRing.direction,
+        });
 
         this.pixiGraphics.finishPoly();
     }

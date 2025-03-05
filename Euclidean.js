@@ -6,65 +6,55 @@ export class Euclidean
      * Draw a euclidean Aura Ring
      * @param {PIXI.Graphics} canvas 
      * @param {AuraRing} auraRing 
-     * @param {SimpleTokenDocument} simpleTokenDocument 
+     * @param {Token} token 
      * @param {boolean} close 
      */
-    static draw(canvas, auraRing, simpleTokenDocument, close)
+    static draw(canvas, auraRing, token, close)
     {
-        const origin = new Point(
-            simpleTokenDocument.object.w / 2,
-            simpleTokenDocument.object.h / 2,
-        );
-
-        const radius = Euclidean.pixelRadius(auraRing.radius, origin);
-
         auraRing.angle === 360
-            ? Euclidean.circle(canvas, simpleTokenDocument, auraRing.radius)
-            : Euclidean.cone(canvas, auraRing, origin, radius, simpleTokenDocument.rotation, close);
+            ? Euclidean.circle(canvas, auraRing, token)
+            : Euclidean.cone(canvas, auraRing, token, close);
     }
 
     /**
      * Create a circular euclidean Aura Ring
      * @param {PIXI.Graphics} canvas
-     * @param {SimpleTokenDocument} simpleTokenDocument
-     * @param {number} radius
+     * @param {AuraRing} auraRing
+     * @param {Token} token
      */
-    static circle(canvas, simpleTokenDocument, radius)
+    static circle(canvas, auraRing, token)
     {
-        const gridSize = game.canvas.grid.size;
-        const tokenHeight = gridSize * simpleTokenDocument.height;
-        const tokenWidth = gridSize * simpleTokenDocument.width;
-        const tokenOffset = gridSize * (simpleTokenDocument.width - 1);
-        radius = Euclidean.pixelRadius(radius, new Point());
+        const radius = Euclidean.pixelRadius(auraRing.radius);
 
-        canvas.drawRoundedRect(
-            -radius,
-            -radius,
-            (radius * 2) + tokenWidth,
-            (radius * 2) + tokenHeight,
-            (radius + tokenWidth) - tokenOffset,
-        );
+        token.document.width > 1 || token.document.height > 1
+            ? canvas.drawRoundedRect(
+                -radius - (token.w / 2),
+                -radius - (token.h / 2),
+                (radius * 2) + token.w,
+                (radius * 2) + token.h,
+                radius,
+            )
+            : canvas.drawCircle(0, 0, radius + (token.w / 2));
     }
 
     /**
      * Create a conical euclidean Aura Ring
      * @param {PIXI.Graphics} canvas
      * @param {AuraRing} auraRing
-     * @param {Point} origin
-     * @param {number} radius
-     * @param {number} rotation
+     * @param {Token} token
      * @param {boolean} close
      */
-    static cone(canvas, auraRing, origin, radius, rotation, close)
+    static cone(canvas, auraRing, token, close)
     {
         // TODO Projection is incorrect on larger creatures; corners being cut
+
+        const origin = new Point();
+        const radius = Euclidean.pixelRadius(auraRing.radius) + (token.w / 2);
 
         const points = Euclidean.arcPoints(
             origin,
             radius,
-            auraRing.angle, 
-            auraRing.direction, 
-            rotation
+            auraRing.angle,
         );
 
         if (close === true) {
@@ -80,6 +70,10 @@ export class Euclidean
             origin.angleTo(points.end) * (Math.PI / 180),
         );
         
+        console.warn(
+            canvas,
+        );
+
         if (close === true) {
             canvas.lineTo(origin.x, origin.y);
             canvas.closePath();
@@ -91,21 +85,16 @@ export class Euclidean
     /**
      * Get the arc points of a conincal Aura Ring
      * @param {Point} origin
-     * @param {number} radius 
-     * @param {number} angle 
-     * @param {number} direction 
-     * @param {number} rotation 
+     * @param {number} radius
+     * @param {number} angle
      * @returns {Object}
      */
-    static arcPoints(origin, radius, angle, direction, rotation)
+    static arcPoints(origin, radius, angle)
     {
-        const angleOffset = angle / 2;
-        const startDegrees = (-90 + direction + rotation) - angleOffset;
-        const endDegrees = startDegrees + angle;
-
+        const startDegrees = -90 - (angle / 2);
         const radiansPerDegree = Math.PI / 180;
         const startAngle = startDegrees * radiansPerDegree;
-        const endAngle = endDegrees * radiansPerDegree;
+        const endAngle = (startDegrees + angle) * radiansPerDegree;
 
         return {
             start: new Point(
@@ -121,13 +110,12 @@ export class Euclidean
 
     /**
      * Convert the radius in game units to pixels
-     * @param {number} radius 
-     * @param {Point} origin
+     * @param {number} radius
      * @returns {number}
      */
-    static pixelRadius(radius, origin)
+    static pixelRadius(radius)
     {
         const grid = game.canvas.grid;
-        return (radius * (grid.size / grid.distance)) + origin.x;
+        return (radius * (grid.size / grid.distance));
     }
 }

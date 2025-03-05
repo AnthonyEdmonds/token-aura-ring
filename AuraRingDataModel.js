@@ -6,12 +6,6 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
     fieldList = [
         [
             'name',
-            'visibility',
-            'use_grid_shapes',
-            'hide',
-            'respect_fog',
-            'hover_only',
-            'owner_only',
         ],
         [
             'radius',
@@ -28,6 +22,15 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             'fill_colour',
             'fill_opacity',
         ],
+        [
+            'visibility',
+            'hide',
+            'respect_fog',
+            'hover_only',
+            'owner_only',
+            'is_square',
+            'use_grid_shapes',
+        ]
     ];
 
     static defineSchema() 
@@ -42,6 +45,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             hide: AuraRingDataModel.hideField(defaults.hide),
             hover_only: AuraRingDataModel.hoverOnlyField(defaults.hover_only),
             id: AuraRingDataModel.idField(defaults.id),
+            is_square: AuraRingDataModel.isSquareField(defaults.is_square),
             name: AuraRingDataModel.nameField(defaults.name),
             owner_only: AuraRingDataModel.ownerOnlyField(defaults.owner_only),
             radius: AuraRingDataModel.radiusField(defaults.radius),
@@ -65,6 +69,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             hide: false,
             hover_only: false,
             id: 0,
+            is_square: false,
             name: 'Aura',
             owner_only: false,
             radius: 20,
@@ -272,6 +277,19 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
         );
     }
 
+    static isSquareField(initial)
+    {
+        return AuraRingField.booleanField(
+            AuraRingField.dataFieldOptions(
+                'Draw as a square?',
+                initial,
+            ),
+            AuraRingField.dataFieldContext(
+                'is_square',
+            ),
+        );
+    }
+
     static nameField(initial)
     {
         return AuraRingField.stringField(
@@ -298,7 +316,7 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
             AuraRingField.dataFieldOptions(
                 'Only show for owner?',
                 initial,
-                'The Aura Ring will only show for token owners, and observers.',
+                'The Aura Ring will only show for token owners and observers.',
             ),
             AuraRingField.dataFieldContext(
                 'stroke_close',
