@@ -77,15 +77,17 @@ export class AuraRingActiveEffects
             return index;
         }
 
-        const attributes = Object.getOwnPropertyNames(actor.system.attributes);
+        const attributes = Object.keys(actor.system.attributes);
 
         for (const attribute of attributes) {
-            AuraRingActiveEffects.parseChange(
-                index, 
-                actor.system.attributes[attribute].label,
-                actor.system.attributes[attribute].value,
-                foundry.CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            );
+            if (AuraRingActiveEffects.keyIsValid(attribute) === true) {
+                AuraRingActiveEffects.parseChange(
+                    index, 
+                    actor.system.attributes[attribute].label,
+                    actor.system.attributes[attribute].value,
+                    foundry.CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                );
+            }
         }
 
         return index;
@@ -113,6 +115,17 @@ export class AuraRingActiveEffects
     }
 
     /**
+     * Whether the given key is an Aura Ring change
+     * @param {string} key The key to check
+     * @returns Whether the key is valid 
+     */
+    static keyIsValid(key)
+    {
+        return typeof key === 'string'
+            && key.startsWith(AuraRingActiveEffects.key) === true;
+    }
+
+    /**
      * Parse the given string key for the Aura Ring name and property
      * @param {Object} index A list of changes captured so far
      * @param {string} key The key to change in TokenAuraRing.name.property format
@@ -121,13 +134,6 @@ export class AuraRingActiveEffects
      */
     static parseChange(index, key, value, mode)
     {
-        if (
-            typeof key !== 'string'
-            || key.startsWith(AuraRingActiveEffects.key) === false
-        ) {
-            return;
-        }
-
         const parts = key.split('.');
 
         if (parts.length !== 3) {
