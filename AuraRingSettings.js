@@ -148,7 +148,7 @@ export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
 
     static register(config)
     {
-        const formApplication = new AuraRingSettings(config.preview);
+        const formApplication = new AuraRingSettings(config._preview);
     
         const icon = document.createElement('i');
         icon.classList.add('fas', 'fa-ring');
@@ -165,7 +165,10 @@ export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
         formGroup.classList.add('form-group');
         formGroup.append(button);
 
-        config.form.children[1].appendChild(formGroup);
+        config.form.children[2].insertBefore(
+            formGroup,
+            config.form.children[2].lastChild,
+        );
         config.form.parentElement.parentElement.style.height = 'auto';
     }
 
@@ -463,7 +466,7 @@ export class AuraRingSettings extends HandlebarsApplicationMixin(ApplicationV2)
 
     previewFormData(form)
     {
-        const formData = new FormDataExtended(form);
+        const formData = new foundry.applications.ux.FormDataExtended(form);
         const newAuraRings = this.gatherFormData(formData);
 
         for (let index = 0; index < newAuraRings.length; ++index) {
