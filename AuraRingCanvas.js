@@ -37,22 +37,22 @@ export class AuraRingCanvas
     // Handlers
     /**
      * Handle the "destroyToken" hook
-     * @param {Token} token 
+     * @param {foundry.canvas.placeables.Token} token 
      */
     static async handleDestroyToken(token)
     {
-        if (AuraRingCanvas.isClass(token, Token) === true) {
+        if (AuraRingCanvas.isClass(token, foundry.canvas.placeables.Token) === true) {
             AuraRingCanvas.getCanvas(token)?.destroyPixiAuraContainer();
         }
     }
     
     /**
      * Handle the "refreshToken" hook
-     * @param {Token} token 
+     * @param {foundry.canvas.placeables.Token} token 
      */
     static async handleRefreshToken(token)
     {
-        if (AuraRingCanvas.isClass(token, Token) === true) {
+        if (AuraRingCanvas.isClass(token, foundry.canvas.placeables.Token) === true) {
             AuraRingCanvas.getCanvas(token)?.drawCanvas();
         }
     }

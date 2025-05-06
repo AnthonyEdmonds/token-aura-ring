@@ -108,6 +108,23 @@ export class AuraRingDataModel extends foundry.abstract.DataModel
                 }
     
                 const formGroup = this.schema.fields[field].toFormGroup({}, inputConfig);
+
+                if (field !== 'name') {
+                    formGroup.classList.add('slim');
+                }
+
+                const label = formGroup.firstChild;
+                if (label.textContent.includes('(') === true) {
+                    const start = label.textContent.indexOf('(');
+
+                    const span = document.createElement('span');
+                    span.classList.add('units')
+                    span.textContent = label.textContent.substring(start);
+
+                    label.textContent = label.textContent.substring(0, start);
+                    label.appendChild(span);
+                }
+
                 section.appendChild(formGroup);
             }
         }

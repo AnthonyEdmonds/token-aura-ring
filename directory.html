@@ -1,4 +1,4 @@
-<div class="scrollable flexcol" style="flex: 1;">
+<div class="scrollable flexcol" style="flex: 1; padding-right: 0;">
     <main style="flex: 1;">
         <h4 style="border-bottom: 1px solid var(--color-underline-active);">Selected Token</h4>
 
@@ -34,29 +34,32 @@
 
                     <div style="display: flex; flex: 0; align-items: center; margin-left: 1rem;">
                         <button
-                            class="fas fa-plus"
                             data-action="add"
                             data-aura="{{auraRing.name}}"
                             style="flex: 0; padding: 3px; margin-left: 3px;"
                             type="button"
                             title="Add to selected token"
-                        />
+                        >
+                            <i class="fas fa-plus"></i>
+                        </button>
                         <button
-                            class="fas fa-pencil"
                             data-action="rename"
                             data-aura="{{auraRing.name}}"
                             style="flex: 0; padding: 3px; margin-left: 3px;"
                             type="button"
                             title="Rename..."
-                        />
+                        >
+                            <i class="fas fa-pencil"></i>
+                        </button>
                         <button
-                            class="fas fa-trash"
                             data-action="remove"
                             data-aura="{{auraRing.name}}"
                             style="flex: 0; padding: 3px; margin-left: 3px;"
                             type="button"
                             title="Remove from directory"
-                        />
+                        >
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </li>
             {{else}}
@@ -67,7 +70,10 @@
     </main>
 
     <footer>
-        <button data-action="close">
+        <button
+            data-action="close"
+            style="width: 100%;"
+        >
             <i class="fas fa-times"></i> Close Directory
         </button>
     </footer>
