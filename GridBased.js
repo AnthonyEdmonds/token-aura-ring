@@ -15,7 +15,7 @@ export class GridBased
     {
         const gridDistance = game.canvas.grid.distance;
         const gridSize = game.canvas.grid.size;
-        const gridOffset = gridSize / 2;
+        const gridOffset = Math.round(gridSize / 2);
 
         let radius = Math.round(auraRing.radius / gridDistance) * gridDistance;
         const origins = GridBased.originPoints(simpleTokenDocument, gridSize, gridOffset);
