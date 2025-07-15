@@ -4,6 +4,7 @@ import { AuraRingApi } from './AuraRingApi.js';
 import { AuraRingDirectory } from './AuraRingDirectory.js';
 
 Hooks.on('renderTokenConfig', AuraRingSettings.register);
+Hooks.on('renderTokenApplication', AuraRingSettings.register);
 
 /**
  * Auras can only be drawn once vision has been established
